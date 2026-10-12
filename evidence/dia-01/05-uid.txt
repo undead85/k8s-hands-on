@@ -1,0 +1,8 @@
+# 2026-10-12T12:08:57-03:00
+--- Deployment web (imagen del manifiesto):
+uid=101(nginx) gid=101(nginx) groups=101(nginx)
+--- nginx:1.14.2 (comparación):
+uid=0(root) gid=0(root) groups=0(root)
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+pod "uid-nginx" deleted from lab namespace

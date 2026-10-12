@@ -1,0 +1,40 @@
+# 2026-10-12T12:10:00-03:00
+Version: 0.75.0
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-10-12 09:47:21.509023105 +0000 UTC
+  NextUpdate: 2026-10-13 09:47:21.509022788 +0000 UTC
+  DownloadedAt: 2026-10-12 13:15:13.9212738 +0000 UTC
+Java DB:
+  Version: 1
+  UpdatedAt: 2026-10-12 01:00:58.130815836 +0000 UTC
+  NextUpdate: 2026-10-15 01:00:58.130815315 +0000 UTC
+  DownloadedAt: 2026-10-12 13:16:42.0763554 +0000 UTC
+
+date -Iseconds && trivy image --quiet --severity HIGH,CRITICAL --table-mode summary nginx:1.14.2
+2026-10-12T12:26:15-03:00
+Report Summary
+
+┌───────────────────────────┬────────┬─────────────────┬─────────┐
+│          Target           │  Type  │ Vulnerabilities │ Secrets │
+├───────────────────────────┼────────┼─────────────────┼─────────┤
+│ nginx:1.14.2 (debian 9.8) │ debian │       113       │    -    │
+└───────────────────────────┴────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+date -Iseconds && trivy image --quiet --severity HIGH,CRITICAL --table-mode summary nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+2026-10-12T12:27:08-03:00
+Report Summary
+
+┌──────────────────────────────────────────────────────────────────────────────────┬────────┬─────────────────┬─────────┐
+│                                      Target                                      │  Type  │ Vulnerabilities │ Secrets │
+├──────────────────────────────────────────────────────────────────────────────────┼────────┼─────────────────┼─────────┤
+│ nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c68- │ alpine │        0        │    -    │
+│ 0450e4aa72d29b867c1e (alpine 3.24.2)                                             │        │                 │         │
+└──────────────────────────────────────────────────────────────────────────────────┴────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)

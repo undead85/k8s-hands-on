@@ -1,0 +1,42 @@
+# 2026-10-12T12:07:36-03:00
+--- imagen en el manifiesto del repo:
+nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+--- imagen ANTES del undo:
+nginxinc/nginx-unprivileged:1.31.6-alpine
+--- rollout history ANTES:
+deployment.apps/web 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+5         <none>
+7         <none>
+14        <none>
+15        <none>
+16        <none>
+
+$ kubectl rollout undo deploy/web -n lab
+Warning: resource deployments/web was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+deployment.apps/web rolled back
+Waiting for deployment "web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+deployment "web" successfully rolled out
+--- imagen DESPUÉS del undo:
+nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+--- rollout history DESPUÉS:
+deployment.apps/web 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+5         <none>
+7         <none>
+14        <none>
+16        <none>
+17        <none>

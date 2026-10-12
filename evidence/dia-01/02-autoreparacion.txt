@@ -1,0 +1,10 @@
+# 2026-10-12T12:03:50-03:00
+Pod a borrar: web-f7746fcc6-6z66c | Ready antes: 3
+$ kubectl delete pod web-f7746fcc6-6z66c -n lab --wait=false  (t0=12:03:52.006589300)
+pod "web-f7746fcc6-6z66c" deleted from lab namespace
+t1=12:03:54.516859100 -> 3 Pods Ready (sin contar el Pod borrado)
+RESULTADO: 2.4 s -> CUMPLE (<30 s)
+NAME                  READY   STATUS    RESTARTS   AGE
+web-f7746fcc6-kx5vh   1/1     Running   0          16m
+web-f7746fcc6-r9jh9   1/1     Running   0          16m
+web-f7746fcc6-t2p4f   1/1     Running   0          2s

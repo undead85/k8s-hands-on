@@ -1,0 +1,22 @@
+# 2026-10-12T12:00:14-03:00
+$ kubectl get nodes -o wide
+NAME                STATUS   ROLES           AGE    VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                              CONTAINER-RUNTIME
+lab-control-plane   Ready    control-plane   2d2h   v1.37.0   172.18.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.18.40.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+lab-worker          Ready    <none>          2d2h   v1.37.0   172.18.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.18.40.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+lab-worker2         Ready    <none>          2d2h   v1.37.0   172.18.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.18.40.1-microsoft-standard-WSL2 (amd64)   containerd://2.3.4
+kind-lab
+Client Version: v1.37.1
+Kustomize Version: v5.8.1
+Server Version: v1.37.0
+kind v0.33.0 go1.26.7 windows/amd64
+Version: 0.75.0
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-10-12 09:47:21.509023105 +0000 UTC
+  NextUpdate: 2026-10-13 09:47:21.509022788 +0000 UTC
+  DownloadedAt: 2026-10-12 13:15:13.9212738 +0000 UTC
+Java DB:
+  Version: 1
+  UpdatedAt: 2026-10-12 01:00:58.130815836 +0000 UTC
+  NextUpdate: 2026-10-15 01:00:58.130815315 +0000 UTC
+  DownloadedAt: 2026-10-12 13:16:42.0763554 +0000 UTC

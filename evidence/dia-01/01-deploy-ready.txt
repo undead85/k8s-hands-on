@@ -1,0 +1,12 @@
+# 2026-10-12T12:02:23-03:00
+$ bash -c kubectl apply -f manifests/ && kubectl rollout status deploy/web -n lab --timeout=120s && kubectl get deploy,pods -n lab -o wide
+namespace/lab unchanged
+deployment.apps/web configured
+deployment "web" successfully rolled out
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS   IMAGES                                                                                                SELECTOR
+deployment.apps/web   3/3     3            3           122m   nginx        nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e   app=web
+
+NAME                      READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+pod/web-f7746fcc6-6z66c   1/1     Running   0          14m   10.244.2.27   lab-worker    <none>           <none>
+pod/web-f7746fcc6-kx5vh   1/1     Running   0          14m   10.244.2.28   lab-worker    <none>           <none>
+pod/web-f7746fcc6-r9jh9   1/1     Running   0          14m   10.244.1.20   lab-worker2   <none>           <none>
