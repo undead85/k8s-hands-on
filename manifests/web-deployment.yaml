@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: lab
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+        #image: nginx:1.14.2
+        ports:
+        - containerPort: 8080
+  strategy: 
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0

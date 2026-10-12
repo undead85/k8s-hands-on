@@ -8,3 +8,8 @@ repos:
   rev: v6.0.0
   hooks:
   - id: end-of-file-fixer
+- repo: https://github.com/espressif/conventional-precommit-linter
+  rev: v1.11.0
+  hooks:
+  - id: conventional-precommit-linter
+    stages: [commit-msg]
