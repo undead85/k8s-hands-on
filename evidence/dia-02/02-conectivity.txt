@@ -1,0 +1,7 @@
+$ kubectl run temp -n lab --rm -it --image=nginx -- //bin/sh
+
+$ curl -s -o /dev/null -w "%{http_code}" web
+200
+
+$ curl -s -o /dev/null -w "%{http_code}" web.lab.svc.cluster.local
+200

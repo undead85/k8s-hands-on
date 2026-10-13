@@ -1,0 +1,24 @@
+$ k get pods -n lab
+NAME                   READY   STATUS    RESTARTS   AGE
+web-789b57f87b-cjq29   1/1     Running   0          49m
+web-789b57f87b-k9556   1/1     Running   0          49m
+web-789b57f87b-vbkkl   1/1     Running   0          2m11s
+
+$ k delete pod web-789b57f87b-cjq29 -n lab
+pod "web-789b57f87b-cjq29" deleted from lab namespace
+
+$ k get pods -n lab
+NAME                   READY   STATUS    RESTARTS   AGE
+web-789b57f87b-8jdgj   1/1     Running   0          7s
+web-789b57f87b-k9556   1/1     Running   0          50m
+web-789b57f87b-vbkkl   1/1     Running   0          2m50s
+
+$ k get EndpointSlice -n lab
+NAME                 ADDRESSTYPE   PORTS   ENDPOINTS                           AGE
+web-headless-k9684   IPv4          8080    10.244.2.3,10.244.2.5,10.244.1.15   47m
+web-tbtfx            IPv4          8080    10.244.2.3,10.244.2.5,10.244.1.15   30m
+
+$ k get svc -n lab
+NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+web            ClusterIP   10.96.80.8   <none>        80/TCP    31m
+web-headless   ClusterIP   None         <none>        80/TCP    48m

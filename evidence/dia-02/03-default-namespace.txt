@@ -1,0 +1,7 @@
+$ kubectl run temp -n default --rm -it --image=nginx -- //bin/sh
+
+# curl web
+curl: (6) Could not resolve host: web
+
+# curl -s -o /dev/null -w "%{http_code}" web.lab.svc.cluster.local
+200#

@@ -1,0 +1,4 @@
+$ k get EndpointSlice -n lab
+NAME                 ADDRESSTYPE   PORTS   ENDPOINTS                          AGE
+web-headless-k9684   IPv4          8080    10.244.2.3,10.244.1.4,10.244.2.5   44m
+web-tbtfx            IPv4          8080    10.244.2.3,10.244.1.4,10.244.2.5   27m

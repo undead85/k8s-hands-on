@@ -1,0 +1,23 @@
+$ kubectl run temp -n lab --rm -it --image=nginx -- //bin/sh
+
+# nslookup web
+;; Got recursion not available from 10.96.0.10
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   web.lab.svc.cluster.local
+Address: 10.96.80.8
+;; Got recursion not available from 10.96.0.10
+
+# nslookup web-headless
+;; Got recursion not available from 10.96.0.10
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   web-headless.lab.svc.cluster.local
+Address: 10.244.1.15
+Name:   web-headless.lab.svc.cluster.local
+Address: 10.244.2.3
+Name:   web-headless.lab.svc.cluster.local
+Address: 10.244.2.5
+;; Got recursion not available from 10.96.0.10

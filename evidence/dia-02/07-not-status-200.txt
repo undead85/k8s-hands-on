@@ -1,0 +1,21 @@
+#bash
+TOTAL=0; FAIL=0; while true; do \
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 2 web); \
+  TOTAL=$((TOTAL+1)); \
+  if [ "$STATUS" != "200" ]; then \
+    FAIL=$((FAIL+1)); \
+    echo "¡Fallo! Código: $STATUS | Total fallas: $FAIL"; \
+  fi; \
+  sleep 0.1; \
+done
+
+echo -e "\n--- RESULTADOS --- \nPeticiones totales: $TOTAL \nPeticiones fallidas (No 200): $FAIL"
+
+$ k delete pod web-789b57f87b-k9556   -n lab
+pod "web-789b57f87b-k9556" deleted from lab namespace
+
+$ echo -e "\n--- RESULTADOS --- \nPeticiones totales: $TOTAL \nPeticiones fallidas (No 200): $FAIL"
+-e
+--- RESULTADOS ---
+Peticiones totales: 256
+Peticiones fallidas (No 200): 0

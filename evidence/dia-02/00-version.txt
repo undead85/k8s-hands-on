@@ -1,0 +1,6 @@
+$ k get deploy/web -n  lab -o wide
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                                                                                                                SELECTOR
+web    3/3     3            3           26h   nginx        nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e   app=web
+
+$ git config --list | grep core.auto
+core.autocrlf=true

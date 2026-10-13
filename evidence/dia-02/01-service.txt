@@ -1,0 +1,4 @@
+$ k get svc -n lab
+NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+web            ClusterIP   10.96.80.8   <none>        80/TCP    18m
+web-headless   ClusterIP   None         <none>        80/TCP    36m

@@ -1,5 +1,5 @@
 # Día 01 — Deployment confiable
-**Fecha:** 2026-10-12 · **Tiempo:** <<tu cifra final>> (planificado: 30') · **Estado:** ✅ criterios 1–6 cumplidos; hallazgos abiertos (ver abajo)
+**Fecha:** 2026-10-12 · **Tiempo:** 90' (planificado: 30') · **Estado:** ✅ criterios 1–6 cumplidos; hallazgos abiertos (ver abajo)
 
 ## 🎯 Objetivo medible
 `web` ×3 en el namespace `lab`, con tag fijo y sin root; auto-reparación en menos de 30 s; rollout que nunca baje de 3 Pods disponibles; `rollout undo` devuelve la imagen original.
