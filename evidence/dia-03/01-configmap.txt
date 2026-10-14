@@ -1,0 +1,46 @@
+# 2026-10-14T16:10:49-03:00
+$ kubectl get cm -n lab
+NAME               DATA   AGE
+kube-root-ca.crt   1      2d6h
+web-config         2      3h57m
+
+$ kubectl get deploy/web -n lab
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+web    3/3     3            3           2d6h
+
+$ kubectl exec -it deployment/web -n lab -- printenv APP_MODE
+production
+
+$ kubectl exec -it deploy/web -n lab -- nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+$ kubectl run temp -n lab --rm -i --image=nicolaka/netshoot  -- curl web/healthz -v
+* Host web:80 was resolved.
+* IPv6: (none)
+* IPv4: 10.96.80.8
+*   Trying 10.96.80.8:80...
+* Established connection to web (10.96.80.8 port 80) from 10.244.1.31 port 34180
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0* using HTTP/1.x
+> GET /healthz HTTP/1.1
+> Host: web
+> User-Agent: curl/8.21.0
+> Accept: */*
+>
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.31.6
+< Date: Wed, 14 Oct 2026 19:13:37 GMT
+< Content-Type: application/octet-stream
+< Content-Length: 12
+< Connection: keep-alive
+< Content-Type: text/plain
+<
+{ [12 bytes data]
+100     12 100     12   0      0    516      0                              0
+* Connection #0 to host web:80 left intact
+OK - HealthyAll commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+pod "temp" deleted from lab namespace

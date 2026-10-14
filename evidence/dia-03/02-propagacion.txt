@@ -1,0 +1,62 @@
+# 2026-10-14T16:21:49-03:00
+$ kubectl apply -f manifests/
+deployment.apps/mysql unchanged
+service/mysql unchanged
+namespace/lab unchanged
+configmap/web-config configured
+deployment.apps/web configured
+service/web unchanged
+service/web-headless unchanged
+
+$ kubectl get pod -n lab
+NAME                     READY   STATUS    RESTARTS   AGE
+mysql-59b44678f4-5tmf2   1/1     Running   0          49m
+web-57c6f77c89-fr9sk     1/1     Running   0          50m
+web-57c6f77c89-j4bsc     1/1     Running   0          50m
+web-57c6f77c89-msk8h     1/1     Running   0          50m
+
+$ kubectl exec -it deployment/web -n lab -- printenv APP_MODE
+production
+
+$ kubectl rollout restart deploy/web -n lab
+deployment.apps/web restarted
+
+$ kubectl get pod -n lab
+NAME                     READY   STATUS    RESTARTS   AGE
+mysql-59b44678f4-5tmf2   1/1     Running   0          50m
+web-75c8d5c9cb-77sx4     1/1     Running   0          4s
+web-75c8d5c9cb-nwq4c     1/1     Running   0          2s
+web-75c8d5c9cb-vqbcx     1/1     Running   0          5s
+
+$ kubectl exec -it deployment/web -n lab -- printenv APP_MODE
+production-change
+
+$ kubectl run temp -n lab --rm -i --image=nicolaka/netshoot  -- curl web/healthz -v
+* Host web:80 was resolved.
+* IPv6: (none)
+* IPv4: 10.96.80.8
+*   Trying 10.96.80.8:80...
+* Established connection to web (10.96.80.8 port 80) from 10.244.2.25 port 38884
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0* using HTTP/1.x
+> GET /healthz HTTP/1.1
+> Host: web
+> User-Agent: curl/8.21.0
+> Accept: */*
+>
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: nginx/1.31.6
+< Date: Wed, 14 Oct 2026 19:24:05 GMT
+< Content-Type: application/octet-stream
+< Content-Length: 32
+< Connection: keep-alive
+< Content-Type: text/plain
+<
+{ [32 bytes data]
+100     32 100     32   0      0   1732      0                              0
+* Connection #0 to host web:80 left intact
+OK - This was a configMap changeAll commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+pod "temp" deleted from lab namespace
