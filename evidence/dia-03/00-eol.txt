@@ -1,0 +1,27 @@
+$ git ls-files --eol
+i/lf    w/lf    attr/                   .gitignore
+i/lf    w/lf    attr/                   .pre-commit-config.yaml
+i/lf    w/crlf  attr/                   docs/dia-01-deployment.md
+i/lf    w/crlf  attr/                   docs/dia-02-service.md
+i/lf    w/lf    attr/                   evidence/dia-01/00-entorno.txt
+i/lf    w/lf    attr/                   evidence/dia-01/01-deploy-ready.txt
+i/lf    w/lf    attr/                   evidence/dia-01/02-autoreparacion.txt
+i/lf    w/lf    attr/                   evidence/dia-01/03-rollout-availability.txt
+i/lf    w/crlf  attr/                   evidence/dia-01/04-undo-historia.txt
+i/lf    w/lf    attr/                   evidence/dia-01/05-uid.txt
+i/lf    w/lf    attr/                   evidence/dia-01/06-trivy.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/00-version.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/01-service.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/02-conectivity.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/03-default-namespace.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/04-enpointslice.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/05-delete-pod.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/06-nslookup.txt
+i/lf    w/crlf  attr/                   evidence/dia-02/07-not-status-200.txt
+i/lf    w/mixed attr/                   kind/kind-config.yaml
+i/lf    w/lf    attr/                   manifests/namespace.yaml
+i/lf    w/lf    attr/                   manifests/web-deployment.yaml
+i/lf    w/crlf  attr/                   manifests/web-service.yaml
+
+$ git config --show-origin --get-all core.autocrlf
+file:C:/Program Files/Git/etc/gitconfig true

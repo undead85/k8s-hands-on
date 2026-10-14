@@ -1,0 +1,15 @@
+$ k get pod -n lab -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+web-7b56775ccd-62mqt   1/1     Running   0          24s   10.244.2.14   lab-worker    <none>           <none>
+web-7b56775ccd-cp5tq   1/1     Running   0          22s   10.244.1.18   lab-worker2   <none>           <none>
+web-7b56775ccd-qr627   1/1     Running   0          20s   10.244.2.15   lab-worker    <none>           <none>
+
+$ kubectl exec -it web-7b56775ccd-62mqt -n lab -- nginx -V
+nginx version: nginx/1.31.6
+built by gcc 15.2.0 (Alpine 15.2.0)
+built with OpenSSL 3.5.7 9 Jun 2026 (running with OpenSSL 3.5.9 29 Sep 2026)
+TLS SNI support enabled
+configure arguments: --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/run/nginx.pid --lock-path=/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --with-perl_modules_path=/usr/lib/perl5/vendor_perl --user=nginx --group=nginx --with-compat --with-control-api --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_json_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-http_v3_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --with-cc-opt='-Os -fstack-clash-protection -Wformat -Werror=format-security -fno-plt -g' --with-ld-opt='-Wl,--as-needed,-O1,--sort-common -Wl,-z,pack-relative-relocs'
+
+$ kubectl get pod web-7b56775ccd-62mqt -n lab -o jsonpath='{.spec.containers[*].image}'
+nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
