@@ -45,4 +45,17 @@ Por qué es la excepción declarativa: TODO
 
 
 ## 🔎 Revisión del mentor
-La completa el mentor tras «revisa día 3».
+**Cierre: ⚠️ cerrado con deuda**, por decisión del alumno (sin tiempo para resolver los hallazgos). Los estados de la tabla de arriba son los del alumno; este es el veredicto del mentor según la evidencia (2026-10-14):
+
+| # | Mentor | Motivo |
+|---|---|---|
+| 1 | ✅ | 3/3 Ready, `nginx -t` OK y 200 en `/healthz`. Imagen de prueba `netshoot` sin tag fijo. |
+| 2 | ❌ | Falta medir el archivo montado entre el `apply` y el `rollout restart`; la evidencia solo compara antes y después del restart. |
+| 3 | ⚠️ | Valor no expuesto y `20 bytes`; falta mostrar largo esperado vs. real. |
+| 4 | ⚠️ | Hay login (banner), pero faltan el log "ready for connections" y una consulta de prueba; la contraseña pasó por la línea de comandos del cliente (mejorable). |
+| 5 | ⚠️ | Control 0 → 2 → 0 sobre el árbol de trabajo; falta el historial (`gitleaks git`). |
+| 6 | ✅ | Con la contraseña vieja se rechaza y con la nueva se entra; falta mostrar cómo se cambió el Secret sin exponer el valor. |
+
+Ejes: 🎯 ⚠️ · 🔐 ❌ · 📈 ⚠️ · 🧰 ⚠️
+
+Pendiente (registrado en el plan del Project): preguntas 1–4 de la ficha, autoauditoría de seguridad, Parte 0 (0a, 0b, 0c), revisar si quedaron objetos `mysql` huérfanos en el clúster y medir el tiempo real (los timestamps de la evidencia abarcan más de 60').
