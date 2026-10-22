@@ -39,9 +39,9 @@ Estado: pendiente → ✅ solo si el dato está en el archivo / ⚠️ parcial /
 |---|---|---|---|---|
 | 1 | 3 probes y requests/limits visibles en `describe pod`; con los request y limits iguales se asegura que el pod tenga los recuersos garantizados frente a una situación de estres de recursos del nodo | `01-probes.txt` | ✅ | QoS: Guaranteed · requests: cpu=500,memory=128Mi · limits: cpu=500,memory=128Mi |
 | 2 | Readiness roto en 1 Pod: `0/1`, su IP sale del EndpointSlice, el bucle de `curl` (con timestamps) no ve errores; antes/después con `-o wide`; al recuperar vuelve | `02-readiness.txt` | ✅ | Pod / IP: web-6dc4957d78-hlslt / 10.244.2.15 · peticiones: +50 · errores: 0 |
-| 3 | Liveness roto en 1 Pod: `RESTARTS` ≥ 2 y eventos de falla y reinicio | `03-liveness.txt` | ✅ | `RESTARTS`: 1 · eventos clave:  Liveness probe failed: HTTP probe failed with statuscode: 503 |
-| 4 | (Bonus) Arranque lento sin reinicios gracias a `startupProbe` | `04-startup.txt` | pendiente | cómo simulé el arranque lento: ?? · reinicios: ?? |
-| 5 | (Bonus) Requests exagerados dejan una réplica en `Pending` y los eventos dicen por qué; revertido de forma declarativa | `05-pending.txt` | pendiente | evento: ?? |
+| 3 | Liveness roto en 1 Pod: `RESTARTS` ≥ 1 y eventos de falla y reinicio | `03-liveness.txt` | ✅ | `RESTARTS`: 1 · eventos clave:  Liveness probe failed: HTTP probe failed with statuscode: 503 |
+| 4 | (Bonus) Arranque lento sin reinicios gracias a `startupProbe` | `04-startup.txt` | no realizado | no tuve tiempo para completarlo |
+| 5 | (Bonus) Requests exagerados dejan una réplica en `Pending` y los eventos dicen por qué; revertido de forma declarativa | `05-pending.txt` | no realizado | no tuve tiempo para completarlo |
 
 ## 🔧 Diseño de la prueba de fallo (decisión tuya)
 - Ruta o archivo que usa la readiness y por qué: El readiness usa el path /readiness donde fallará solo si existe /tmp/romper_readiness en el container
@@ -73,4 +73,42 @@ Si supera el limite de memoria se produce un error terminal y el contenedor se r
 - [ ] Tres líneas para el mentor. Esperaba: ?? · Pasó: ?? · Dudas: ??
 
 ## 🔎 Revisión del mentor
-La completa el mentor tras «revisa día 4».
+**Revisado:** 2026-10-22 · **Cierre:** ⚠️ con deuda (elegido por el alumno por falta de tiempo: 120' declarados contra 60' de plan, repartidos entre el 21 y el 22 oct)
+
+| # | Veredicto | Motivo |
+|---|---|---|
+| Parte 0 | ✅ | S1, S3 y S4 ✅. S2: ambos manifiestos parsean en `8baa7f2` y no hay valores de contraseña en lo commiteado; la nota aún dice `[ ]` y `00-seguro.txt` no tiene el `dry-run` |
+| 1 | ⚠️ | Se ven las 3 probes, requests/limits y QoS Guaranteed, pero el `describe` es de una versión anterior (las 3 probes apuntan a `/healthz`) y el manifiesto commiteado usa `/readiness` y `/liveness`. Los valores 500m/128Mi no están justificados (solo la igualdad requests = limits) |
+| 2 | ✅ | `0/1`, `Ready: false` en el endpoint, antes/después con `-o wide`, bucle con timestamps (254 respuestas 200, 0 errores) y recuperación a `1/1`. Reservas abajo |
+| 3 | ⚠️ | El mecanismo se demuestra (falla de liveness, `Killing`, reinicio), pero `RESTARTS` = 1 y el criterio pide ≥ 2. La tabla de la nota dice ✅ con el dato 1, y el texto del criterio se cambió después de mi revisión de `≥ 2` a `≥ 0`. El criterio de la ficha sigue siendo `≥ 2` y el veredicto no cambia |
+| 4 y 5 | — | Bonus no realizados (declarado por el alumno); no penalizan |
+| Predicciones | ⚠️ | P1 acertó. P2 acertó el mecanismo, pero no previó que quedaría un solo reinicio. P3 respondió primero sobre el caso sin valores. Sin hora de escritura no se pueden verificar como previas, y falta la comparación esperaba/pasó |
+| Preguntas 1–4 | ✅ / ⚠️ | Correctas en lo conceptual; ninguna cita el archivo de evidencia que la respalda |
+
+**Ejes:** 🎯 ⚠️ · 🔐 ⚠️ · 📈 ⚠️ · 🧰 ⚠️
+
+**Lo logrado:** falla por Pod, declarativa y sin reinicio (rutas separadas por probe + archivo bandera en `/tmp`); readiness y liveness independientes, lo que responde la pregunta 2 con experiencia propia; readiness demostrado con 0 errores durante el fallo; se mantienen digest, no-root y `maxUnavailable: 0`; nada sensible en el commit.
+
+**Corrección del mentor:** la ficha decía que con readiness roto "la IP sale del EndpointSlice". Es impreciso: el endpoint sigue listado con `ready: false`. Tu predicción 1 y tu evidencia 02 estaban bien. Corrige esa frase en la fila del criterio 2 de tu tabla.
+
+**Reservas del criterio 2 (no bloquean el ✅):** las horas están en zonas distintas (`ev` en -03:00, el bucle en UTC); no consta el instante del `touch` ni del `rm`; el bucle no muestra qué Pod respondió (el Pod `0/1` también responde 200 en `/`); no se indica desde dónde corre el bucle.
+
+**Preguntas abiertas (no son deuda; se retoman en los Días 7 y 10):**
+- 🔐 La palanca de falla (`/tmp/romper_*`) vive en el ConfigMap de producción: con permiso de `exec`, cualquiera puede sacar un Pod de servicio. ¿Dónde debería vivir esa lógica de prueba?
+- 📈 Con 500m por réplica, ¿cuánto consume `web` realmente y qué implica para un HPA al 50%? Con una `startupProbe`, ¿para qué queda el `initialDelaySeconds: 10` de la liveness?
+
+**Deuda registrada (qué falta · por qué · cuándo):**
+- **Nivel 1, antes de empezar el Día 5 (≤ 2'):** dejar en `evidence/dia-04/00-seguro.txt` la salida de `kubectl apply --dry-run=client -f manifests/web-deployment.yaml` y marcar S2 `[x]`.
+- **Nivel 2, plazo = cierre del hito (Día 5, vie 23 oct):** se paga o se escribe `no corregido` con el motivo.
+
+| Deuda | Qué falta |
+|---|---|
+| D4-1 (criterio 1) | `describe pod` de un Pod actual (probes en `/readiness` y `/liveness`) y justificación de 500m/128Mi con consumo medido |
+| D4-2 (criterio 3) | `RESTARTS` ≥ 2. Pregunta guía: ¿por qué el Pod se recupera solo tras el primer reinicio? |
+| D4-3 (criterio 2) | Una sola zona horaria, instante del fallo y de la reversión, desde dónde corre el bucle y cómo se muestra qué Pod recibió tráfico |
+| D4-4 (nota) | Hora de las predicciones, "tres líneas", fecha y estado de la cabecera, secciones 🧪 Verificación reproducible y 📚 Producción (faltan respecto de la plantilla), cada pregunta con su evidencia, y la tabla de deuda de nivel 2 (hoy en `??`) |
+| Heredadas | 0a, 0b, 0c y D3-2 a D3-6 siguen abiertas. Pista: la evidencia 02 paga el formato antes/después de 0c, pero la prueba del selector (pregunta 4 del Día 2) no |
+
+**Motivo del cierre con deuda:** falta de tiempo del alumno.
+
+**Higiene:** `main` está un commit por delante de `origin/main`; faltan el tag `dia-04` y su push.
