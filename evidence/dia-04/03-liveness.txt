@@ -1,0 +1,24 @@
+# 2026-10-22T11:50:30-03:00
+$ kubectl get pods -n lab -l app=web -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+web-6dc4957d78-55j6x   1/1     Running   0          40m   10.244.2.14   lab-worker    <none>           <none>
+web-6dc4957d78-hjvkh   1/1     Running   0          40m   10.244.1.17   lab-worker2   <none>           <none>
+web-6dc4957d78-hlslt   1/1     Running   0          21m   10.244.2.15   lab-worker    <none>           <none>
+
+$ kubectl exec -it -n lab web-6dc4957d78-hlslt  -- touch //tmp/romper_liveness
+
+$ kubectl get pods -n lab -l app=web -o wide
+NAME                   READY   STATUS    RESTARTS      AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+web-6dc4957d78-55j6x   1/1     Running   0             41m   10.244.2.14   lab-worker    <none>           <none>
+web-6dc4957d78-hjvkh   1/1     Running   0             41m   10.244.1.17   lab-worker2   <none>           <none>
+web-6dc4957d78-hlslt   1/1     Running   1 (13s ago)   23m   10.244.2.15   lab-worker    <none>           <none>
+
+$ kubectl get events -n lab
+LAST SEEN   TYPE      REASON              OBJECT                      MESSAGE
+25m         Normal    Scheduled           pod/web-6dc4957d78-hlslt    Successfully assigned lab/web-6dc4957d78-hlslt to lab-worker
+2m11s       Normal    Pulled              pod/web-6dc4957d78-hlslt    Container image "nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e" already present on machine and can be accessed by the pod
+2m11s       Normal    Created             pod/web-6dc4957d78-hlslt    Container created
+2m11s       Normal    Started             pod/web-6dc4957d78-hlslt    Container started
+11m         Warning   Unhealthy           pod/web-6dc4957d78-hlslt    Readiness probe failed: HTTP probe failed with statuscode: 503
+2m17s       Warning   Unhealthy           pod/web-6dc4957d78-hlslt    Liveness probe failed: HTTP probe failed with statuscode: 503
+2m12s       Normal    Killing             pod/web-6dc4957d78-hlslt    Container nginx failed liveness probe, will be restarted

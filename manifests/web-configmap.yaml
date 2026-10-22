@@ -17,6 +17,18 @@ data:
         location /healthz {
             access_log off;
             add_header Content-Type text/plain;
-            return 200 'OK - This was a configMap change';
+            return 200 'OK';
+        }
+        location /readiness {
+            access_log off;
+            add_header Content-Type text/plain;
+            if (-f /tmp/romper_readiness) { return 503; }
+            return 200 'OK';
+        }
+        location /liveness {
+            access_log off;
+            add_header Content-Type text/plain;
+            if (-f /tmp/romper_liveness) { return 503; }
+            return 200 'OK';
         }
     }
