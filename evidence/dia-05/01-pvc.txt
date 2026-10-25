@@ -1,0 +1,39 @@
+# 2026-10-25T15:14:22+00:00
+$ kubectl apply -f manifests/
+deployment.apps/db configured
+persistentvolumeclaim/db-pvc created
+service/db unchanged
+namespace/lab unchanged
+configmap/web-config unchanged
+deployment.apps/web configured
+service/web unchanged
+service/web-headless unchanged
+
+# 2026-10-25T15:20:29+00:00
+$ kubectl get pvc -n lab -o wide
+NAME     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE    VOLUMEMODE
+db-pvc   Bound    pvc-b2bb73d0-9526-4ed4-bdb7-e36b80cd6e23   20Mi       RWO            standard       <unset>                 6m3s   Filesystem
+
+# 2026-10-25T15:21:54+00:00
+$ kubectl describe pv -n lab
+Name:              pvc-b2bb73d0-9526-4ed4-bdb7-e36b80cd6e23
+Labels:            <none>
+Annotations:       local.path.provisioner/selected-node: lab-worker2
+                   pv.kubernetes.io/provisioned-by: rancher.io/local-path
+Finalizers:        [kubernetes.io/pv-protection]
+StorageClass:      standard
+Status:            Bound
+Claim:             lab/db-pvc
+Reclaim Policy:    Delete
+Access Modes:      RWO
+VolumeMode:        Filesystem
+Capacity:          20Mi
+Node Affinity:     
+  Required Terms:  
+    Term 0:        kubernetes.io/hostname in [lab-worker2]
+Message:           
+Source:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/local-path-provisioner/pvc-b2bb73d0-9526-4ed4-bdb7-e36b80cd6e23_lab_db-pvc
+    HostPathType:  DirectoryOrCreate
+Events:            <none>

@@ -1,0 +1,81 @@
+# 2026-10-25T17:15:02+00:00
+$ kubectl get pods -n lab -l app=db -o wide
+NAME                 READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+db-6b57b6bc5-tfcgq   1/1     Running   0          28m   10.244.1.55   lab-worker2   <none>           <none>
+
+# 2026-10-25T17:15:02+00:00
+$ kubectl get secret mysql-secret -n lab -o jsonpath={.metadata.resourceVersion}{"\n"}
+908523
+
+# 2026-10-25T17:21:48+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$VIEJA -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+pod "mysql-client-secure" deleted from lab namespace
+
+# 2026-10-25T17:22:11+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$AZAR -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+ERROR 1045 (28000): Access denied for user 'root'@'10.244.1.69' (using password: YES)
+pod "mysql-client-secure" deleted from lab namespace# 2026-10-25T17:26:57+00:00
+
+$ kubectl get secret mysql-secret -n lab -o jsonpath={.metadata.resourceVersion}{"\n"}
+909893
+
+# 2026-10-25T17:28:08+00:00
+$ kubectl rollout restart deploy/db -n lab
+deployment.apps/db restarted
+
+# 2026-10-25T17:28:09+00:00
+$ kubectl rollout status deploy/db -n lab
+Waiting for deployment "db" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "db" rollout to finish: 1 old replicas are pending termination...
+deployment "db" successfully rolled out
+
+# 2026-10-25T17:28:12+00:00
+$ kubectl get pods -n lab -l app=db -o wide
+NAME                  READY   STATUS        RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+db-5695666d49-c9pq5   1/1     Running       0          4s    10.244.1.71   lab-worker2   <none>           <none>
+db-6b57b6bc5-tfcgq    1/1     Terminating   0          41m   10.244.1.55   lab-worker2   <none>           <none>
+
+# 2026-10-25T17:29:27+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$VIEJA -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+Database
+information_schema
+k8s
+mysql
+performance_schema
+sys
+pod "mysql-client-secure" deleted from lab namespace
+
+# 2026-10-25T17:30:43+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$NUEVA -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+ERROR 1045 (28000): Access denied for user 'root'@'10.244.1.73' (using password: YES)
+pod "mysql-client-secure" deleted from lab namespace
+
+# 2026-10-25T17:31:32+00:00
+$ kubectl logs deploy/db -n lab --tail=30
+2026-10-25 17:28:11+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 9.7.2-1.el9 started.
+2026-10-25 17:28:13+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2026-10-25 17:28:13+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 9.7.2-1.el9 started.
+'/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+2026-10-25T17:28:14.990155Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-10-25T17:28:18.924821Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 9.7.2) starting as process 1
+2026-10-25T17:28:18.924910Z 0 [System] [MY-015603] [Server] MySQL Server has access to 8 logical CPUs.
+2026-10-25T17:28:18.924998Z 0 [System] [MY-015603] [Server] MySQL Server has access to 4019912704 bytes of physical memory.
+2026-10-25T17:28:19.000365Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-10-25T17:28:21.281762Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-10-25T17:28:21.998562Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-10-25T17:28:21.998668Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-10-25T17:28:22.009333Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+2026-10-25T17:28:22.086203Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+2026-10-25T17:28:22.086628Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '9.7.2'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+
+# 2026-10-25T17:33:12+00:00
+$ kubectl get secret mysql-secret -n lab -o jsonpath={.metadata.resourceVersion}{"\n"}
+910567

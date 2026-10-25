@@ -1,0 +1,33 @@
+# 2026-10-25T16:09:06+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+Tables_in_k8s
+ev
+count(*)
+0
+creado
+2026-10-25 16:09:08
+pod "mysql-client-secure" deleted from lab namespace
+
+# 2026-10-25T16:10:29+00:00
+$ kubectl get pods -n lab -o wide -l app=db
+NAME                  READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+db-5d9464d89b-qn928   1/1     Running   0          51m   10.244.1.23   lab-worker2   <none>           <none>
+
+# 2026-10-25T16:10:57+00:00
+$ kubectl delete pod/db-5d9464d89b-qn928 -n lab
+pod "db-5d9464d89b-qn928" deleted from lab namespace
+
+# 2026-10-25T16:11:19+00:00
+$ kubectl get pods -n lab -o wide -l app=db
+NAME                  READY   STATUS    RESTARTS   AGE   IP            NODE          NOMINATED NODE   READINESS GATES
+db-5d9464d89b-ws5hc   1/1     Running   0          23s   10.244.1.49   lab-worker2   <none>           <none>
+
+# 2026-10-25T16:12:13+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+count(*)
+1
+pod "mysql-client-secure" deleted from lab namespace

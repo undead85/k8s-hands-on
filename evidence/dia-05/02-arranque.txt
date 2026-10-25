@@ -1,0 +1,57 @@
+# 2026-10-25T15:29:25+00:00
+$ kubectl get pods -n lab -l app=db
+NAME                  READY   STATUS    RESTARTS   AGE
+db-5d9464d89b-qn928   1/1     Running   0          9m59s
+
+# 2026-10-25T15:30:48+00:00
+$ kubectl logs db-5d9464d89b-qn928 -n lab
+2026-10-25 15:19:29+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 9.7.2-1.el9 started.
+2026-10-25 15:19:30+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2026-10-25 15:19:30+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 9.7.2-1.el9 started.
+'/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+2026-10-25T15:19:31.108715Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2026-10-25T15:19:34.455221Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 9.7.2) starting as process 1
+2026-10-25T15:19:34.455352Z 0 [System] [MY-015603] [Server] MySQL Server has access to 8 logical CPUs.
+2026-10-25T15:19:34.455462Z 0 [System] [MY-015603] [Server] MySQL Server has access to 4019912704 bytes of physical memory.
+2026-10-25T15:19:34.516716Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2026-10-25T15:19:37.275484Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2026-10-25T15:19:38.495505Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2026-10-25T15:19:38.495747Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2026-10-25T15:19:38.521228Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+2026-10-25T15:19:38.667285Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+2026-10-25T15:19:38.667859Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '9.7.2'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+
+# 2026-10-25T15:44:45+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+Database
+information_schema
+mysql
+performance_schema
+sys
+pod "mysql-client-secure" deleted from lab namespace
+
+# 2026-10-25T15:46:35+00:00
+$ history
+  722  ev 02-arranque.txt kubectl logs db-5d9464d89b-qn928  -n lab
+  723  kubectl run mysql-client-secure --rm -i --tty --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+  724  export MYSQL_PWD=$(kubectl get secret mysql-secret -n lab -o jsonpath='{.data.mysql-root-password}' | base64 --decode)
+  725  kubectl run mysql-client-secure --rm -i --tty --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+  726  env
+  727  env | grep MYSQL
+  728  kubectl get secret mysql-secret -n lab -o jsonpath='{.data.mysql-root-password}' | base64 --decode
+  729  kubectl get secret mysql-secret -n lab -o jsonpath='{.data.mysql-root-password}'
+  730  kubectl get secret mysql-secret -n lab
+  731  export MYSQL_PWD=$(kubectl get secret mysql-secret -n lab -o jsonpath='{.data.password}' | base64 --decode)
+  732  env
+  733  env | grep MYSQL
+  734  kubectl run mysql-client-secure --rm -i --tty --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+  735  kubectl run mysql-client-secure --rm -i --tty --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "select database();"
+  736  kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "select database();"
+  737  kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "use postgres; select database();"
+  738  kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "show databases"
+  739  ev 02--arranque.txt kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "show databases"
+  740  ev 02-arranque.txt kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root <<< "show databases"
+  741  history
+  742  ev 02-arranque.txt history

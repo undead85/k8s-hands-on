@@ -3,3 +3,6 @@ $ git ls-remote --tags origin
 aa32fccaa279346b5af8ca3de0eb0dcdc3440024	refs/tags/dia-01
 38078926368b9a4d97640a3a8b7d0c675a5f1522	refs/tags/dia-02
 d44f1d4e211d56d16bc4c1d62267dc40b33a3662	refs/tags/dia-03
+
+$ kubectl apply --dry-run=client -f manifests/web-deployment.yaml
+deployment.apps/web configured (dry run)

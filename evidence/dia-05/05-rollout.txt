@@ -1,0 +1,25 @@
+strategy: recreate
+16:42:16 db-5d9464d89b-z5xqm   1/1   Running   0     25m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:49 db-5d9464d89b-z5xqm   1/1   Terminating   0     26m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:49 db-5d9464d89b-z5xqm   1/1   Terminating   0     26m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:53 db-5d9464d89b-z5xqm   0/1   Completed     0     26m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:53 db-7d4f6cd788-tkmfm   0/1   Pending       0     0s    <none>        <none>        <none>   <none>
+16:43:53 db-7d4f6cd788-tkmfm   0/1   Pending       0     0s    <none>        lab-worker2   <none>   <none>
+16:43:53 db-7d4f6cd788-tkmfm   0/1   ContainerCreating   0     0s    <none>        lab-worker2   <none>   <none>
+16:43:53 db-5d9464d89b-z5xqm   0/1   Completed           0     26m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:53 db-5d9464d89b-z5xqm   0/1   Completed           0     26m   10.244.1.52   lab-worker2   <none>   <none>
+16:43:54 db-7d4f6cd788-tkmfm   0/1   ContainerCreating   0     1s    <none>        lab-worker2   <none>   <none>
+16:43:54 db-7d4f6cd788-tkmfm   1/1   Running             0     1s    10.244.1.54   lab-worker2   <none>   <none>
+
+strategy: rollingUpdate
+16:46:30 db-7d4f6cd788-tkmfm   1/1   Running   0     2m37s   10.244.1.54   lab-worker2   <none>   <none>
+16:46:37 db-6b57b6bc5-tfcgq    0/1   Pending   0     0s      <none>        <none>        <none>   <none>
+16:46:37 db-6b57b6bc5-tfcgq    0/1   Pending   0     0s      <none>        lab-worker2   <none>   <none>
+16:46:37 db-6b57b6bc5-tfcgq    0/1   ContainerCreating   0     0s      <none>        lab-worker2   <none>   <none>
+16:46:39 db-6b57b6bc5-tfcgq    0/1   ContainerCreating   0     2s      <none>        lab-worker2   <none>   <none>
+16:46:39 db-6b57b6bc5-tfcgq    1/1   Running             0     2s      10.244.1.55   lab-worker2   <none>   <none>
+16:46:40 db-7d4f6cd788-tkmfm   1/1   Terminating         0     2m46s   10.244.1.54   lab-worker2   <none>   <none>
+16:46:40 db-7d4f6cd788-tkmfm   1/1   Terminating         0     2m47s   10.244.1.54   lab-worker2   <none>   <none>
+16:46:43 db-7d4f6cd788-tkmfm   0/1   Completed           0     2m50s   10.244.1.54   lab-worker2   <none>   <none>
+16:46:44 db-7d4f6cd788-tkmfm   0/1   Completed           0     2m50s   10.244.1.54   lab-worker2   <none>   <none>
+16:46:44 db-7d4f6cd788-tkmfm   0/1   Completed           0     2m50s   10.244.1.54   lab-worker2   <none>   <none>

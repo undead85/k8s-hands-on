@@ -10,6 +10,8 @@ spec:
       app: db
   template:
     metadata:
+      annotations: 
+        test: "rollout with a rolloutUpdate strategy"
       labels:
         app: db
     spec:
@@ -24,4 +26,13 @@ spec:
               key: password
         ports:
         - containerPort: 3306
-    
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: db-pvc
+  strategy: 
+    type: RollingUpdate

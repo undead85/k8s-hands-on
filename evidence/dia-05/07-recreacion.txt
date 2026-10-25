@@ -1,0 +1,150 @@
+# 2026-10-25T17:37:32+00:00
+$ kubectl get ns lab
+NAME   STATUS   AGE
+lab    Active   13d
+
+# 2026-10-25T17:38:10+00:00
+$ kubectl get all -n lab
+NAME                       READY   STATUS    RESTARTS       AGE
+pod/db-5695666d49-c9pq5    1/1     Running   0              10m
+pod/web-6dc4957d78-55j6x   1/1     Running   0              3d3h
+pod/web-6dc4957d78-hjvkh   1/1     Running   0              3d3h
+pod/web-6dc4957d78-hlslt   1/1     Running   1 (3d2h ago)   3d3h
+
+NAME                   TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/db             ClusterIP   10.96.51.61   <none>        3306/TCP   10d
+service/web            ClusterIP   10.96.80.8    <none>        80/TCP     12d
+service/web-headless   ClusterIP   None          <none>        80/TCP     12d
+
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db    1/1     1            1           10d
+deployment.apps/web   3/3     3            3           13d
+
+NAME                             DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-5695666d49    1         1         1       10m
+replicaset.apps/db-5d9464d89b    0         0         0       143m
+replicaset.apps/db-66f7c468d7    0         0         0       10d
+replicaset.apps/db-6b57b6bc5     0         0         0       51m
+replicaset.apps/db-7d4f6cd788    0         0         0       54m
+replicaset.apps/db-9448c6f7d     0         0         0       10d
+replicaset.apps/web-56454b469b   0         0         0       4d1h
+replicaset.apps/web-57c6f77c89   0         0         0       10d
+replicaset.apps/web-5997b769b    0         0         0       4d2h
+replicaset.apps/web-5dfdbfcbfc   0         0         0       4d2h
+replicaset.apps/web-6575746fb4   0         0         0       4d2h
+replicaset.apps/web-6dc4957d78   3         3         3       3d3h
+replicaset.apps/web-6ff9dfddc4   0         0         0       4d2h
+replicaset.apps/web-75c8d5c9cb   0         0         0       10d
+replicaset.apps/web-7656c498c9   0         0         0       3d21h
+replicaset.apps/web-76b9579584   0         0         0       3d22h
+replicaset.apps/web-fc68dd57c    0         0         0       11d
+
+# 2026-10-25T17:38:43+00:00
+$ kubectl delete ns lab
+namespace "lab" deleted
+
+# 2026-10-25T17:39:19+00:00
+$ kubectl get ns lab
+Error from server (NotFound): namespaces "lab" not found
+
+# 2026-10-25T17:43:15+00:00
+$ bash -c time kubectl apply -f manifests/
+namespace/lab created
+configmap/web-config created
+deployment.apps/web created
+service/web created
+service/web-headless created
+Error from server (NotFound): error when creating "manifests\\db-deployment.yaml": namespaces "lab" not found
+Error from server (NotFound): error when creating "manifests\\db-pvc.yaml": namespaces "lab" not found
+Error from server (NotFound): error when creating "manifests\\db-service.yaml": namespaces "lab" not found
+
+real	0m1.573s
+user	0m0.047s
+sys	0m0.046s
+
+# 2026-10-25T17:45:44+00:00
+$ kubectl delete ns lab
+namespace "lab" deleted
+
+# 2026-10-25T17:46:30+00:00
+$ bash -c time kubectl apply -f manifests/namespace.yaml
+namespace/lab created
+
+real	0m0.541s
+user	0m0.031s
+sys	0m0.000s
+
+# 2026-10-25T17:46:38+00:00
+$ bash -c time kubectl apply -f manifests/
+deployment.apps/db created
+persistentvolumeclaim/db-pvc created
+service/db created
+namespace/lab unchanged
+configmap/web-config created
+deployment.apps/web created
+service/web created
+service/web-headless created
+
+real	0m1.648s
+user	0m0.015s
+sys	0m0.047s
+
+# 2026-10-25T18:40:22+00:00
+$ kubectl get pods -n lab
+NAME                   READY   STATUS                       RESTARTS   AGE
+db-7c5bfdffc9-6zg6m    0/1     CreateContainerConfigError   0          53m
+web-67b67c6756-4zrwk   1/1     Running                      0          53m
+web-67b67c6756-8f9pw   1/1     Running                      0          53m
+web-67b67c6756-pncw9   1/1     Running                      0          53m
+
+# 2026-10-25T18:50:59+00:00
+$ kubectl delete ns lab
+namespace "lab" deleted
+# 2026-10-25T18:59:07+00:00
+$ bash -c time kubectl apply -f manifests/namespace.yaml
+namespace/lab created
+
+real	0m0.896s
+user	0m0.061s
+sys	0m0.015s
+
+# 2026-10-25T18:59:18+00:00
+$ bash -c cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: lab
+type: Opaque
+stringData:
+  password: "$MYSQL_PWD"
+EOF
+secret/mysql-secret created
+
+# 2026-10-25T19:00:06+00:00
+$ bash -c time kubectl apply -f manifests/
+deployment.apps/db created
+persistentvolumeclaim/db-pvc created
+service/db created
+namespace/lab unchanged
+configmap/web-config created
+deployment.apps/web created
+service/web created
+service/web-headless created
+
+real	0m2.007s
+user	0m0.016s
+sys	0m0.031s
+
+# 2026-10-25T19:00:26+00:00
+$ kubectl get pods -n lab
+NAME                   READY   STATUS    RESTARTS   AGE
+db-7c5bfdffc9-cqdxs    1/1     Running   0          20s
+web-67b67c6756-lpbkh   1/1     Running   0          19s
+web-67b67c6756-ndwvh   1/1     Running   0          19s
+web-67b67c6756-rnr7r   1/1     Running   0          19s
+
+# 2026-10-25T19:00:37+00:00
+$ kubectl get pvc -n lab
+NAME     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+db-pvc   Bound    pvc-1f2c082d-f9b1-4c90-bd11-fe2b18e21b36   20Mi       RWO            standard       <unset>                 30s

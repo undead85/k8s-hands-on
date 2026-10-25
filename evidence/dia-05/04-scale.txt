@@ -1,0 +1,20 @@
+# 2026-10-25T16:16:09+00:00
+$ kubectl scale deploy/db -n lab --replicas=0
+deployment.apps/db scaled
+
+# 2026-10-25T16:16:35+00:00
+$ kubectl get pvc -n lab -o wide
+NAME     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+db-pvc   Bound    pvc-b2bb73d0-9526-4ed4-bdb7-e36b80cd6e23   20Mi       RWO            standard       <unset>                 62m   Filesystem
+
+# 2026-10-25T16:17:07+00:00
+$ kubectl scale deploy/db -n lab --replicas=1
+deployment.apps/db scaled
+
+# 2026-10-25T16:17:27+00:00
+$ kubectl run mysql-client-secure --rm -i --image=mysql:8.0 -n lab --env=MYSQL_PWD=$MYSQL_PWD -- mysql -h db -u root
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+count(*)
+1
+pod "mysql-client-secure" deleted from lab namespace
