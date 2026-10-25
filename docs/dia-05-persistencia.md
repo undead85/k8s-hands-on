@@ -1,6 +1,6 @@
 # Día 05 — Persistencia (MySQL con PVC) y cierre del hito
-**Fecha de inicio:** 2026-10-22 · **Inicio:** ??:?? · **Fin:** ??:?? · **Minutos reales:** Parte 0 ??' + deuda ??' + A ??' + B ??' + C ??' (plan: A 60' · B +30' · C +35') · **Estado:** TODO (✅ / ⚠️ parcial)
-**Alcance de hoy:** TODO (A / A+B / A+C / A+B+C)
+**Fecha de inicio:** 2026-10-22 · **Inicio:** ??:?? · **Fin:** ??:?? · **Minutos reales:** Parte 0 ??' + deuda ??' + A ??' + B ??' + C ??' (plan: A 60' · B +30' · C +35') · **Estado:** ⚠️ parcial (cerrado con deuda el 2026-10-25)
+**Alcance de hoy:** A+B+C (C parcial; bonus no realizado)
 
 ## 🎯 Objetivo medible
 `db` conserva sus datos cuando muere su Pod (PVC con StorageClass `standard`): inserto 1 fila, hago `delete pod` y `SELECT COUNT(*)` = 1; luego `scale 0 -> 1` y sigue en 1. Bloque B: entiendo qué pasa con los datos al actualizar el manifiesto y al rotar el Secret. Bloque C: borro el namespace `lab` y lo recreo todo con un solo comando documentado.
@@ -18,18 +18,22 @@ Cada fila: `pagada` (con enlace a la evidencia) o `no corregido` (con el motivo)
 
 | Deuda | Origen | Estado (pagada / no corregido) | Evidencia o motivo |
 |---|---|---|---|
-| 0a Digest en ejecución == digest del manifiesto | Día 1–2 | pagada | evidence/dia-01/01-deploy-ready.txt |
+| 0a Digest en ejecución == digest del manifiesto | Día 1–2 | no corregido | la evidencia citada (`evidence/dia-01/01-deploy-ready.txt`) muestra la imagen declarada en el Deployment, no el digest del Pod en ejecución (cierre del mentor, 2026-10-25) |
 | 0b Regla de fin de línea en el repo (`.gitattributes`, `.editorconfig`, hook) | Día 1–2 | no corregido | sin tiempo; hoy priorizo persistencia y el cierre del hito |
 | 0c Prueba del selector (pregunta 4 del Día 2) | Día 2 | no corregido | sin tiempo |
 | D3-2 Archivo montado cambia sin reinicio (≤ 2 min) | Día 3 | no corregido | sin tiempo |
 | D3-3 Secret: largo esperado vs. real | Día 3 |  no corregido | sin tiempo |
-| D3-4 Login: log "ready for connections", consulta de prueba y contraseña fuera de la línea de comandos (se paga con los criterios 2 y 3) | Día 3 | pagado | se paga sola |
+| D3-4 Login: log "ready for connections", consulta de prueba y contraseña fuera de la línea de comandos (se paga con los criterios 2 y 3) | Día 3 | parcial | log y consulta pagados en `evidence/dia-05/02-arranque.txt` y `03-delete-pod.txt`; contraseña fuera de la línea de comandos: no (patrón `--env=MYSQL_PWD=$VAR`, ver README) |
 | D3-5 `gitleaks` sobre el historial | Día 3 | pagado | evidence/dia-05/00-seguro.txt |
 | D3-6 Preguntas 1–4 y autoauditoría de la nota del Día 3 | Día 3 | no corregido | sin tiempo |
 | D4-1 `describe pod` actual y valores 500m/128Mi justificados | Día 4 | no corregido | sin tiempo |
 | D4-2 Liveness con `RESTARTS` ≥ 2 | Día 4 | no corregido | sin tiempo |
 | D4-3 Reservas del criterio 2 (zona horaria, instantes, quién respondió) | Día 4 | no corregido | sin tiempo |
 | D4-4 Nota del Día 4 (hora de predicciones, tres líneas, 🧪 y 📚, preguntas con evidencia) | Día 4 | no corregido | sin tiempo |
+| D5-1 Criterio 5: alinear la estrategia de `db` con lo que demuestra `05-rollout.txt` (con `RollingUpdate` hay ≈4 s con dos Pods sobre el mismo PVC) | Día 5 | no corregido | cierre del Día 5 pedido el 2026-10-25, sin pagar |
+| D5-2 Criterio 7: comando único documentado y tiempo medido hasta Ready (incluye comprobar que `db` aceptó conexiones) | Día 5 | no corregido | cierre del Día 5 pedido el 2026-10-25, sin pagar |
+| D5-3 Criterio 8 (bonus): `reclaimPolicy` | Día 5 | no corregido | cierre del Día 5 pedido el 2026-10-25, sin pagar |
+| D5-4 Reservas R1–R5, bitácora, 🧪, minutos, tres líneas y preguntas con evidencia | Día 5 | no corregido | cierre del Día 5 pedido el 2026-10-25, sin pagar |
 
 ## 🧩 Predicciones (escríbelas ANTES de ejecutar; no las edites después)
 **Hora en que las escribí:** 17:28
@@ -70,7 +74,6 @@ Mysql setea la clave de root al inicializar el volume, para que tome la nueva co
 4. ¿En qué nodo vive el dato y qué le implica eso al scheduler? ¿Qué pasaría si ese nodo se pierde?
 El dato vive en el nodo donde fue creado el pvc y el pod, por lo tanto el scheduler siempre intentará crear el pod en ese mismo nodo. Si el nodo se pierde tambien se pierde el dato.
 
-```
 
 ## 📦 Entrega
 - [ ] Commit `chore:` o `fix:` de la Parte 0 (dry-run de S2 en la evidencia del Día 4 y `00-seguro.txt` de hoy)
@@ -153,6 +156,19 @@ Filas nuevas que debes declarar o pagar (costos: estimaciones mías):
 - [ ] `grep -rlF -f <(printf '%s\n' "$MYSQL_PWD") README.md evidence docs manifests` → vacío. Repítelo con `$VIEJA`, `$NUEVA` y `$AZAR` si siguen en tu sesión.
 - [ ] `gitleaks dir` sobre los archivos nuevos (README, evidencias 02–07, esta nota). Tu `00-seguro.txt` es del 22 oct.
 - [ ] Borrar la ``` suelta de la línea 73.
+
+### Cierre (2026-10-25)
+**Cerrado con deuda.** Ejes: 🎯 ⚠️ · 🔐 ⚠️ · 📈 ⚠️ · 🧰 ⚠️. Criterios: 1 ✅ · 2 ✅ · 3 ✅ con reserva · 4 ✅ con reserva · 5 ⚠️ · 6 ✅ con reserva · 7 ⚠️ · 8 no realizado.
+
+Al pedir el cierre, el commit `5154212` ya traía la revisión y los pendientes seguían sin pagar. Por defecto del mentor:
+- 0a pasa a `no corregido` (la evidencia citada no muestra el digest en ejecución) y D3-4 a «parcial». Si pagas 0a (≈2'), vuelve a `pagada` con el enlace a su evidencia.
+- D5-1 a D5-4 quedan `no corregido` en la tabla única. Lo que sigue en `??` o `TODO` en tus secciones (inicio, fin y minutos, bitácora, 🧪, tres líneas, preguntas con evidencia) cuenta como D5-4.
+- Quité la ``` suelta de la línea 73 para que esta revisión se vea como texto.
+- Todo lo `no corregido` pasa al README, sección «Limitaciones conocidas».
+
+Mi escaneo de los archivos trackeados no encontró valores de contraseña literales (solo referencias como `$MYSQL_PWD`, el `using password: YES` de MySQL y `20 bytes`). No sustituye tu `grep -F` con los valores reales.
+
+**Pendiente tuyo:** repetir el `grep -rlF` de fugas con `$MYSQL_PWD`, `$VIEJA`, `$NUEVA` y `$AZAR` **antes del `git push`** (Nivel 1); commit `docs:` del cierre; tag `dia-05`; `git push` y `git push origin dia-05`.
 
 ## 📚 Qué haría distinto en producción
 la estrategia sería usar un StatefulSet para poder escalar las réplicas.
