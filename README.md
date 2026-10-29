@@ -9,9 +9,10 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 - **Configuración**: ConfigMap `web-config` (`default.conf` de nginx) y Secret `mysql-secret` (clave `password`), este último **fuera del repo**.
 - **`api`**: 2 réplicas de `traefik/whoami:1.12.0` (por digest, puerto 8080, sin root, `requests` = `limits`), un backend de prueba que devuelve la petición que recibe. Service `api` (ClusterIP :80).
 - **Exposición HTTP** (Día 6): Traefik 3.7.16 (chart 42.1.3) en el namespace `traefik`, desde un manifiesto renderizado con `helm template` (`infra/traefik/traefik.yaml`); CRDs de Gateway API v1.6.3, canal estándar (`infra/gateway-api/`); un `Gateway` `lab-gateway` y una `HTTPRoute` `lab-routes` (host `lab.local`: `/` va a `web` y `/api` a `api`). No hay Ingress ni ingress-nginx.
+- **RBAC** (Día 7): ServiceAccount `deployer` con un `Role` mínimo (`get` y `patch` sobre `deployments`, solo en `lab`), y los Pods de `web` sin token de la API (`automountServiceAccountToken: false`).
 - Las imágenes van fijadas por digest (`@sha256:…`).
 
-> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Día 6) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
+> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
 
 ## Requisitos y versiones usadas
 
@@ -53,7 +54,9 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 │   ├── db-deployment.yaml       # MySQL con el PVC montado
 │   ├── db-service.yaml          # Service db
 │   ├── api.yaml                 # Deployment y Service api (whoami x2)
-│   └── routes.yaml              # HTTPRoute lab-routes (lab.local)
+│   ├── routes.yaml              # HTTPRoute lab-routes (lab.local)
+│   └── rbac.yaml                # ServiceAccount deployer, Role y RoleBinding (Día 7)
+├── scripts/                     # dia-NN.sh: Parte 0 y evidencia (desde el Día 7)
 ├── docs/dia-NN-*.md             # nota de cada día: objetivo, criterios, decisiones, preguntas
 ├── evidence/dia-NN/*.txt        # salida real de los comandos, con hora y comando
 ├── .pre-commit-config.yaml      # gitleaks, end-of-file-fixer, commits convencionales
@@ -160,9 +163,25 @@ Resultados observados el 2026-10-28, 23:46 a 23:48 UTC (`evidence/dia-06/02-web.
 
 Qué sobrevive si se borra solo el namespace `lab`: Traefik, el `Gateway` y los CRDs viven en `traefik` o a nivel de clúster, así que no se borran; la `HTTPRoute` vive en `lab` y sí. Esto sale de dónde está cada objeto; no se probó.
 
+## RBAC (Día 7)
+
+`manifests/rbac.yaml` crea la ServiceAccount `deployer`, un `Role` y un `RoleBinding` en `lab`. El Role permite `get` y `patch` sobre `deployments` (grupo `apps`) y nada más. `web` no monta el token de la API (`automountServiceAccountToken: false` en `web-deployment.yaml`).
+
+Comprobación (esperado: `yes`, `no`, `no`, `no`):
+
+```bash
+WHO=system:serviceaccount:lab:deployer
+kubectl auth can-i patch deployments -n lab --as=$WHO
+kubectl auth can-i get secrets -n lab --as=$WHO
+kubectl auth can-i patch deployments -n default --as=$WHO
+kubectl auth can-i create clusterrolebindings --as=$WHO
+```
+
+`bash scripts/dia-07.sh check` hace esas pruebas y deja la evidencia en `evidence/dia-07/`. `kubectl apply -f manifests/` aplica `rbac.yaml` sin un orden especial.
+
 ## Seguridad y convenciones
 
-- Ningún valor de contraseña va en archivos del repo, en `evidence/` ni en las notas. Lo vigilan `.gitignore` y el hook de `gitleaks`; antes de cada commit se revisa con `grep -rlF` sobre `README.md`, `evidence`, `docs`, `manifests` e `infra`.
+- Ningún valor de contraseña va en archivos del repo, en `evidence/` ni en las notas. Lo vigilan `.gitignore` y el hook de `gitleaks`; antes de cada commit se revisa con `grep -rlF` sobre `README.md`, `evidence`, `docs`, `manifests`, `infra` y `scripts` (desde el Día 7 lo hace `bash scripts/dia-NN.sh pre`).
 - Commits convencionales (`feat:`, `docs:`, `fix:`, `chore:`), validados por el hook `commit-msg`.
 - Cada día cierra con un tag `dia-NN`. Las evidencias son salida real de comandos, con hora y comando, y el criterio de aceptación no se edita después de ver el resultado.
 - Para instalar los hooks: `pre-commit install --hook-type pre-commit --hook-type commit-msg`.
@@ -177,7 +196,8 @@ Qué sobrevive si se borra solo el namespace `lab`: Traefik, el `Gateway` y los 
 | 4 | Probes y recursos | ⚠️ con deuda | `dia-04` | [docs/dia-04-probes-recursos.md](docs/dia-04-probes-recursos.md) |
 | 5 | Persistencia (MySQL con PVC) y cierre del hito | ⚠️ con deuda | `dia-05` | [docs/dia-05-persistencia.md](docs/dia-05-persistencia.md) |
 | 6 | Exposición HTTP (Traefik con Gateway API) | ⚠️ con deuda | `dia-06` | [docs/dia-06-exposicion-http.md](docs/dia-06-exposicion-http.md) |
-| 7–10 | Segunda semana | por hacer | — | — |
+| 7 | RBAC de mínimo privilegio | ✅ | `dia-07` | [docs/dia-07-rbac.md](docs/dia-07-rbac.md) |
+| 8–10 | Segunda semana | por hacer | — | — |
 
 ## Limitaciones conocidas
 
@@ -215,7 +235,9 @@ Es lo que sigue sin corregir o sin demostrar hoy. Las filas "no corregido" salen
 - **Un solo nodo guarda el dato** (`lab-worker2`, ver arriba). No hay réplica ni respaldo.
 - **Imagen de los nodos de kind sin fijar** (ver Requisitos).
 - **Solo HTTP, sin TLS**: el `Gateway` tiene un único listener (`web`, puerto 8000 del contenedor); el bonus de HTTPS del Día 6 no se hizo.
-- **Permisos amplios de Traefik**: la `ClusterRole` `traefik-traefik` da `get`, `list` y `watch` sobre `secrets` en todo el clúster. Hoy el laboratorio no usa TLS en el controlador. Se retoma en el Día 7.
+- **Permisos amplios de Traefik**: la `ClusterRole` `traefik-traefik` da `get`, `list` y `watch` sobre `secrets` en todo el clúster. Hoy el laboratorio no usa TLS en el controlador. No se retomó en el Día 7 (era opcional) y sigue abierto. El controlador necesita el token de la API (su Deployment lo monta: `automountServiceAccountToken: true`), así que lo que se puede acotar es el permiso, no el token.
+- **Token de la API montado en `db`, `api` y Traefik**: solo `web` lo tiene desactivado (Día 7). `db` y `api` no lo necesitan y no se tocaron; Traefik sí lo necesita.
+- **`deployer` sin uso real**: el Role `deployer` se verificó con `can-i --as` y con un `rollout restart`, pero ningún proceso lo usa todavía.
 - **Traefik con 1 réplica y `hostPort`** en `lab-control-plane`: un solo punto de entrada, y no escala con más réplicas porque el puerto del nodo es uno.
 - **Tres versiones a mano**: el tag y el digest de la imagen (`values.yaml`), el chart y los CRDs de Gateway API se actualizan por separado. Según la guía de migración de Traefik, la versión de Gateway API que soporta cambia entre parches de la 3.7, así que subir uno sin los otros puede desfasarlos.
 - **`api` es `traefik/whoami`**: devuelve las cabeceras de la petición. Sirve para probar, no es una aplicación.
