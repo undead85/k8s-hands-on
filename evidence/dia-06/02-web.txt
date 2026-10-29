@@ -1,0 +1,105 @@
+# 2026-10-28T23:46:46+00:00
+$ curl -si -H Host: lab.local http://127.0.0.1/
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Length: 896
+Content-Type: text/html
+Date: Wed, 28 Oct 2026 23:46:46 GMT
+Etag: "6aa953cc-380"
+Last-Modified: Tue, 15 Sep 2026 14:18:52 GMT
+Server: nginx/1.31.6
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, nginx is successfully installed and working.
+Further configuration is required for the web server, reverse proxy, 
+API gateway, load balancer, content cache, or other features.</p>
+
+<p>For online documentation and support please refer to
+<a href="https://nginx.org/">nginx.org</a>.<br/>
+To engage with the community please visit
+<a href="https://community.nginx.org/">community.nginx.org</a>.<br/>
+For enterprise grade support, professional services, additional 
+security features and capabilities please refer to
+<a href="https://f5.com/nginx">f5.com/nginx</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+# 2026-10-28T23:46:54+00:00
+$ kubectl -n lab describe httproute lab-routes
+Name:         lab-routes
+Namespace:    lab
+Labels:       <none>
+Annotations:  <none>
+API Version:  gateway.networking.k8s.io/v1
+Kind:         HTTPRoute
+Metadata:
+  Creation Timestamp:  2026-10-28T23:38:22Z
+  Generation:          1
+  Resource Version:    1360809
+  UID:                 3ef0e0e8-108c-4141-a5c6-71dd3d9c133a
+Spec:
+  Hostnames:
+    lab.local
+  Parent Refs:
+    Group:         gateway.networking.k8s.io
+    Kind:          Gateway
+    Name:          lab-gateway
+    Namespace:     traefik
+    Section Name:  web
+  Rules:
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    api
+      Port:    80
+      Weight:  1
+    Matches:
+      Path:
+        Type:   PathPrefix
+        Value:  /api
+    Backend Refs:
+      Group:   
+      Kind:    Service
+      Name:    web
+      Port:    80
+      Weight:  1
+    Matches:
+      Path:
+        Type:   PathPrefix
+        Value:  /
+Status:
+  Parents:
+    Conditions:
+      Last Transition Time:  2026-10-28T23:38:22Z
+      Message:               
+      Observed Generation:   1
+      Reason:                Accepted
+      Status:                True
+      Type:                  Accepted
+      Last Transition Time:  2026-10-28T23:38:22Z
+      Message:               
+      Observed Generation:   1
+      Reason:                ResolvedRefs
+      Status:                True
+      Type:                  ResolvedRefs
+    Controller Name:         traefik.io/gateway-controller
+    Parent Ref:
+      Group:         gateway.networking.k8s.io
+      Kind:          Gateway
+      Name:          lab-gateway
+      Namespace:     traefik
+      Section Name:  web
+Events:              <none>

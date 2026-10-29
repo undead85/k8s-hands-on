@@ -1,0 +1,51 @@
+# 2026-10-28T23:47:01+00:00
+$ curl -si -H Host: lab.local http://127.0.0.1/api
+HTTP/1.1 200 OK
+Content-Length: 477
+Content-Type: application/json
+Date: Wed, 28 Oct 2026 23:47:02 GMT
+
+{"hostname":"api-6ff4c966b4-g8h8r","ip":["127.0.0.1","::1","10.244.2.24","fe80::fcb2:eff:fe9d:21c7"],"headers":{"Accept":["*/*"],"Accept-Encoding":["gzip"],"User-Agent":["curl/8.21.0"],"X-Forwarded-For":["172.18.0.1"],"X-Forwarded-Host":["lab.local"],"X-Forwarded-Port":["80"],"X-Forwarded-Proto":["http"],"X-Forwarded-Server":["traefik-59b8fb48f6-pjvm7"],"X-Real-Ip":["172.18.0.1"]},"url":"/api","host":"lab.local","method":"GET","name":"api","remoteAddr":"10.244.0.5:47754"}
+
+# 2026-10-28T23:47:12+00:00
+$ curl -si -H Host: lab.local http://127.0.0.1/api/usuarios
+HTTP/1.1 200 OK
+Content-Length: 420
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 28 Oct 2026 23:47:12 GMT
+
+Name: api
+Hostname: api-6ff4c966b4-xnh6q
+IP: 127.0.0.1
+IP: ::1
+IP: 10.244.1.82
+IP: fe80::5432:45ff:fea0:4c18
+RemoteAddr: 10.244.0.5:51268
+GET /api/usuarios HTTP/1.1
+Host: lab.local
+User-Agent: curl/8.21.0
+Accept: */*
+Accept-Encoding: gzip
+X-Forwarded-For: 172.18.0.1
+X-Forwarded-Host: lab.local
+X-Forwarded-Port: 80
+X-Forwarded-Proto: http
+X-Forwarded-Server: traefik-59b8fb48f6-pjvm7
+X-Real-Ip: 172.18.0.1
+
+
+# 2026-10-28T23:47:19+00:00
+$ curl -si -H Host: lab.local http://127.0.0.1/apix
+HTTP/1.1 404 Not Found
+Content-Length: 153
+Content-Type: text/html
+Date: Wed, 28 Oct 2026 23:47:19 GMT
+Server: nginx/1.31.6
+
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.31.6</center>
+</body>
+</html>

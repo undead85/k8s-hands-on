@@ -1,0 +1,12 @@
+# manifests/routes.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata: { name: lab-routes, namespace: lab }
+spec:
+  parentRefs: [{ name: lab-gateway, namespace: traefik, sectionName: web }]
+  hostnames: ["lab.local"]
+  rules:
+    - matches: [{ path: { type: PathPrefix, value: /api } }]   # tu decisión 4
+      backendRefs: [{ name: api, port: 80 }]
+    - matches: [{ path: { type: PathPrefix, value: / } }]
+      backendRefs: [{ name: web, port: 80 }]

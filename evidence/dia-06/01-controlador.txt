@@ -1,0 +1,47 @@
+# 2026-10-28T21:34:46+00:00
+$ kubectl apply -f infra/gateway-api/standard-install-v1.6.3.yaml
+customresourcedefinition.apiextensions.k8s.io/backendtlspolicies.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/gatewayclasses.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/gateways.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/grpcroutes.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/httproutes.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/listenersets.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/referencegrants.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/tcproutes.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/tlsroutes.gateway.networking.k8s.io unchanged
+customresourcedefinition.apiextensions.k8s.io/udproutes.gateway.networking.k8s.io unchanged
+validatingadmissionpolicy.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io configured
+validatingadmissionpolicybinding.admissionregistration.k8s.io/safe-upgrades.gateway.networking.k8s.io configured
+
+# 2026-10-28T21:35:01+00:00
+$ kubectl apply -f infra/traefik/namespace.yaml
+namespace/traefik created
+
+# 2026-10-28T21:35:11+00:00
+$ kubectl apply -f infra/traefik/traefik.yaml
+serviceaccount/traefik created
+clusterrole.rbac.authorization.k8s.io/traefik-traefik created
+clusterrolebinding.rbac.authorization.k8s.io/traefik-traefik created
+service/traefik created
+deployment.apps/traefik created
+gatewayclass.gateway.networking.k8s.io/traefik created
+
+# 2026-10-28T22:31:09+00:00
+$ kubectl apply -f infra/traefik/gateway.yaml
+gateway.gateway.networking.k8s.io/lab-gateway created
+
+# 2026-10-28T22:31:17+00:00
+$ kubectl -n traefik get pods,gatewayclass,gateway -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP           NODE                NOMINATED NODE   READINESS GATES
+pod/traefik-59b8fb48f6-pjvm7   1/1     Running   0          56m   10.244.0.5   lab-control-plane   <none>           <none>
+
+NAME                                             CONTROLLER                      ACCEPTED   AGE   DESCRIPTION
+gatewayclass.gateway.networking.k8s.io/traefik   traefik.io/gateway-controller   True       56m   
+
+NAME                                            CLASS     ADDRESS   PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/lab-gateway   traefik             True         6s
+
+# 2026-10-28T22:35:46+00:00
+$ bash -c echo "manifiesto: $(grep -o "sha256:[0-9a-f]\{64\}" infra/traefik/traefik.yaml)"; echo "en ejecución: $(kubectl -n traefik get pod -l app.kubernetes.io/name=traefik -o jsonpath="{.items[0].status.containerStatuses[0].imageID}")"
+manifiesto: sha256:1336e85aaed293bd63d005086e0dd013b04078b26aaeb1c18b26a2f928af7e65
+en ejecución: docker.io/library/traefik@sha256:1336e85aaed293bd63d005086e0dd013b04078b26aaeb1c18b26a2f928af7e65

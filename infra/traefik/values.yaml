@@ -1,0 +1,41 @@
+image:
+  tag: "3.7.16@sha256:1336e85aaed293bd63d005086e0dd013b04078b26aaeb1c18b26a2f928af7e65"
+
+deployment:
+  replicas: 1
+
+providers:
+  kubernetesCRD:
+    enabled: false
+  kubernetesIngress:
+    enabled: false
+  kubernetesGateway:
+    enabled: true
+
+ingressClass:
+  enabled: false
+
+gatewayClass:
+  enabled: true
+gateway:
+  enabled: false      # el Gateway va en infra/traefik/gateway.yaml
+
+ports:
+  web:
+    hostPort: 80
+  websecure:
+    hostPort: 443
+
+service:
+  type: ClusterIP
+
+nodeSelector:
+  ingress-ready: "true"
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits:   { cpu: 100m, memory: 128Mi }
