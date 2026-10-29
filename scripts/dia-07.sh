@@ -6,7 +6,6 @@
 set -u
 DIA=dia-07; NS=lab; SA=deployer; WHO="system:serviceaccount:$NS:$SA"
 EV="evidence/$DIA"; mkdir -p "$EV"
-export MSYS_NO_PATHCONV=1   # Git Bash: no convierte rutas en los argumentos
 RES=(); FAILS=0
 
 ok()  { RES+=("✅ $1"); }

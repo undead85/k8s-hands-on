@@ -1,0 +1,3 @@
+# 2026-10-29T15:33:52+00:00
+$ kubectl -n lab rollout restart deploy/web --as=system:serviceaccount:lab:deployer
+deployment.apps/web restarted

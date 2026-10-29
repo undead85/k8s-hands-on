@@ -76,3 +76,81 @@ exit=0
 $ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
 200
 exit=23
+# 2026-10-29T15:33:39+00:00
+$ gitleaks git --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m12:33PM[0m [32mINF[0m [1m16 commits scanned.[0m
+[90m12:33PM[0m [32mINF[0m [1mscanned ~1380352 bytes (1.38 MB) in 1.12s[0m
+[90m12:33PM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-10-29T15:33:41+00:00
+$ gitleaks dir --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m12:33PM[0m [32mINF[0m [1mscanned ~1375532 bytes (1.38 MB) in 266ms[0m
+[90m12:33PM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-10-29T15:33:45+00:00
+$ grep -rlF -f <valores de mysql-secret, $MYSQL_PWD, $VIEJA, $NUEVA, $AZAR> README.md docs evidence manifests infra scripts
+patrones usados: 5
+sin coincidencias
+
+# 2026-10-29T15:33:45+00:00
+$ kubectl apply --dry-run=server -f manifests/
+deployment.apps/api unchanged (server dry run)
+service/api unchanged (server dry run)
+deployment.apps/db configured (server dry run)
+persistentvolumeclaim/db-pvc unchanged (server dry run)
+service/db unchanged (server dry run)
+namespace/lab unchanged (server dry run)
+serviceaccount/deployer unchanged (server dry run)
+role.rbac.authorization.k8s.io/deployer unchanged (server dry run)
+rolebinding.rbac.authorization.k8s.io/deployer unchanged (server dry run)
+httproute.gateway.networking.k8s.io/lab-routes configured (server dry run)
+configmap/web-config unchanged (server dry run)
+deployment.apps/web unchanged (server dry run)
+service/web unchanged (server dry run)
+service/web-headless unchanged (server dry run)
+exit=0
+
+# 2026-10-29T15:33:48+00:00
+$ kubectl get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+lab-control-plane   Ready    control-plane   19d   v1.37.0
+lab-worker          Ready    <none>          19d   v1.37.0
+lab-worker2         Ready    <none>          19d   v1.37.0
+exit=0
+
+# 2026-10-29T15:33:49+00:00
+$ kubectl -n lab get deploy\,pods
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api   2/2     2            2           15h
+deployment.apps/db    1/1     1            1           3d20h
+deployment.apps/web   3/3     3            3           3d20h
+
+NAME                       READY   STATUS    RESTARTS   AGE
+pod/api-6ff4c966b4-g8h8r   1/1     Running   0          15h
+pod/api-6ff4c966b4-xnh6q   1/1     Running   0          15h
+pod/db-7c5bfdffc9-cqdxs    1/1     Running   0          3d20h
+pod/web-767d86c4b-8b985    1/1     Running   0          30m
+pod/web-767d86c4b-gzsgr    1/1     Running   0          31m
+pod/web-767d86c4b-zzsd8    1/1     Running   0          30m
+exit=0
+
+# 2026-10-29T15:33:51+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0
