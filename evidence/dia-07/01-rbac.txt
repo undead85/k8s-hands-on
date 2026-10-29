@@ -1,0 +1,184 @@
+# 2026-10-29T14:42:28+00:00
+$ kubectl -n lab get sa/deployer role/deployer rolebinding/deployer
+NAME                      AGE
+serviceaccount/deployer   2m2s
+
+NAME                                      CREATED AT
+role.rbac.authorization.k8s.io/deployer   2026-10-29T14:40:27Z
+
+NAME                                             ROLE            AGE
+rolebinding.rbac.authorization.k8s.io/deployer   Role/deployer   2m2s
+exit=0
+
+# 2026-10-29T14:42:29+00:00
+$ kubectl -n lab describe role deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources         Non-Resource URLs  Resource Names  Verbs
+  ---------         -----------------  --------------  -----
+  deployments.apps  []                 []              [patch]
+exit=0
+
+# 2026-10-29T14:42:30+00:00
+$ kubectl -n lab describe rolebinding deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  deployer
+Subjects:
+  Kind            Name      Namespace
+  ----            ----      ---------
+  ServiceAccount  deployer  lab
+exit=0
+
+# 2026-10-29T14:49:36+00:00
+$ kubectl -n lab get sa/deployer role/deployer rolebinding/deployer
+NAME                      AGE
+serviceaccount/deployer   9m10s
+
+NAME                                      CREATED AT
+role.rbac.authorization.k8s.io/deployer   2026-10-29T14:40:27Z
+
+NAME                                             ROLE            AGE
+rolebinding.rbac.authorization.k8s.io/deployer   Role/deployer   9m10s
+exit=0
+
+# 2026-10-29T14:49:37+00:00
+$ kubectl -n lab describe role deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources         Non-Resource URLs  Resource Names  Verbs
+  ---------         -----------------  --------------  -----
+  deployments.apps  []                 []              [patch]
+exit=0
+
+# 2026-10-29T14:49:38+00:00
+$ kubectl -n lab describe rolebinding deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  deployer
+Subjects:
+  Kind            Name      Namespace
+  ----            ----      ---------
+  ServiceAccount  deployer  lab
+exit=0
+
+# 2026-10-29T15:16:40+00:00
+$ kubectl -n lab get sa/deployer role/deployer rolebinding/deployer
+NAME                      AGE
+serviceaccount/deployer   36m
+
+NAME                                      CREATED AT
+role.rbac.authorization.k8s.io/deployer   2026-10-29T14:40:27Z
+
+NAME                                             ROLE            AGE
+rolebinding.rbac.authorization.k8s.io/deployer   Role/deployer   36m
+exit=0
+
+# 2026-10-29T15:16:41+00:00
+$ kubectl -n lab describe role deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources         Non-Resource URLs  Resource Names  Verbs
+  ---------         -----------------  --------------  -----
+  deployments.apps  []                 []              [get, patch]
+exit=0
+
+# 2026-10-29T15:16:41+00:00
+$ kubectl -n lab describe rolebinding deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  deployer
+Subjects:
+  Kind            Name      Namespace
+  ----            ----      ---------
+  ServiceAccount  deployer  lab
+exit=0
+
+# 2026-10-29T15:21:48+00:00
+$ kubectl -n lab get sa/deployer role/deployer rolebinding/deployer
+NAME                      AGE
+serviceaccount/deployer   41m
+
+NAME                                      CREATED AT
+role.rbac.authorization.k8s.io/deployer   2026-10-29T14:40:27Z
+
+NAME                                             ROLE            AGE
+rolebinding.rbac.authorization.k8s.io/deployer   Role/deployer   41m
+exit=0
+
+# 2026-10-29T15:21:48+00:00
+$ kubectl -n lab describe role deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources         Non-Resource URLs  Resource Names  Verbs
+  ---------         -----------------  --------------  -----
+  deployments.apps  []                 []              [get, patch]
+exit=0
+
+# 2026-10-29T15:21:49+00:00
+$ kubectl -n lab describe rolebinding deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  deployer
+Subjects:
+  Kind            Name      Namespace
+  ----            ----      ---------
+  ServiceAccount  deployer  lab
+exit=0
+
+# 2026-10-29T15:22:04+00:00
+$ kubectl -n lab get sa/deployer role/deployer rolebinding/deployer
+NAME                      AGE
+serviceaccount/deployer   41m
+
+NAME                                      CREATED AT
+role.rbac.authorization.k8s.io/deployer   2026-10-29T14:40:27Z
+
+NAME                                             ROLE            AGE
+rolebinding.rbac.authorization.k8s.io/deployer   Role/deployer   41m
+exit=0
+
+# 2026-10-29T15:22:05+00:00
+$ kubectl -n lab describe role deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources         Non-Resource URLs  Resource Names  Verbs
+  ---------         -----------------  --------------  -----
+  deployments.apps  []                 []              [get patch]
+exit=0
+
+# 2026-10-29T15:22:06+00:00
+$ kubectl -n lab describe rolebinding deployer
+Name:         deployer
+Labels:       <none>
+Annotations:  <none>
+Role:
+  Kind:  Role
+  Name:  deployer
+Subjects:
+  Kind            Name      Namespace
+  ----            ----      ---------
+  ServiceAccount  deployer  lab
+exit=0

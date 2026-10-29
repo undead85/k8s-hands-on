@@ -19,6 +19,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 101
         fsGroup: 101
+      automountServiceAccountToken: false
       containers:
       - name: nginx
         image: nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e

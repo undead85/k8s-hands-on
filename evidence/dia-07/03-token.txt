@@ -1,0 +1,91 @@
+# 2026-10-29T14:42:37+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=90s
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web" rollout to finish: 1 old replicas are pending termination...
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-10-29T14:42:43+00:00
+$ kubectl -n lab get deploy web -o jsonpath=\{.spec.template.spec.automountServiceAccountToken\}\{\"\\n\"\}
+false
+exit=0
+
+# 2026-10-29T14:42:44+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.name\}\{\"\ \ \"\}\{.spec.volumes\[\*\].name\}\{\"\\n\"\}\{end\}
+web-67b67c6756-lpbkh  config-volume kube-api-access-4tpf6
+web-6cf67f8b64-9d5fq  config-volume
+web-6cf67f8b64-dkcxp  config-volume
+web-6cf67f8b64-tk2d2  config-volume
+exit=0
+
+# 2026-10-29T14:49:43+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=90s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-10-29T14:49:44+00:00
+$ kubectl -n lab get deploy web -o jsonpath=\{.spec.template.spec.automountServiceAccountToken\}\{\"\\n\"\}
+false
+exit=0
+
+# 2026-10-29T14:49:45+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.name\}\{\"\ \ \"\}\{.spec.volumes\[\*\].name\}\{\"\\n\"\}\{end\}
+web-6cf67f8b64-9d5fq  config-volume
+web-6cf67f8b64-dkcxp  config-volume
+web-6cf67f8b64-tk2d2  config-volume
+exit=0
+
+# 2026-10-29T15:16:47+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=90s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-10-29T15:16:48+00:00
+$ kubectl -n lab get deploy web -o jsonpath=\{.spec.template.spec.automountServiceAccountToken\}\{\"\\n\"\}
+false
+exit=0
+
+# 2026-10-29T15:16:49+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.name\}\{\"\ \ \"\}\{.spec.volumes\[\*\].name\}\{\"\\n\"\}\{end\}
+web-767d86c4b-8b985  config-volume
+web-767d86c4b-gzsgr  config-volume
+web-767d86c4b-zzsd8  config-volume
+exit=0
+
+# 2026-10-29T15:21:55+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=90s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-10-29T15:21:56+00:00
+$ kubectl -n lab get deploy web -o jsonpath=\{.spec.template.spec.automountServiceAccountToken\}\{\"\\n\"\}
+false
+exit=0
+
+# 2026-10-29T15:21:56+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.name\}\{\"\ \ \"\}\{.spec.volumes\[\*\].name\}\{\"\\n\"\}\{end\}
+web-767d86c4b-8b985  config-volume
+web-767d86c4b-gzsgr  config-volume
+web-767d86c4b-zzsd8  config-volume
+exit=0
+
+# 2026-10-29T15:22:12+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=90s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-10-29T15:22:13+00:00
+$ kubectl -n lab get deploy web -o jsonpath=\{.spec.template.spec.automountServiceAccountToken\}\{\"\\n\"\}
+false
+exit=0
+
+# 2026-10-29T15:22:14+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.name\}\{\"\ \ \"\}\{.spec.volumes\[\*\].name\}\{\"\\n\"\}\{end\}
+web-767d86c4b-8b985  config-volume
+web-767d86c4b-gzsgr  config-volume
+web-767d86c4b-zzsd8  config-volume
+exit=0

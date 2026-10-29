@@ -1,0 +1,30 @@
+# Día 7: RBAC de mínimo privilegio. Completa los 2 blancos marcados como BLANCO 1 y BLANCO 2 con la ficha abierta.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deployer
+  namespace: lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+  namespace: lab
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: deployer
+  namespace: lab
+subjects:
+  - kind: ServiceAccount
+    name: deployer
+    namespace: lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: deployer

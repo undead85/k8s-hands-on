@@ -1,0 +1,145 @@
+predicción escrita: 2026-10-29T14:40:04+00:00
+#  caso                                     tu apuesta real   objetivo
+# 2026-10-29T14:42:32+00:00
+$ kubectl auth can-i patch deployments -n lab --as=system:serviceaccount:lab:deployer
+yes
+exit=0
+
+1  patch deployments en lab                 patch deployments en lab : yes yes    ✅ (yes)
+# 2026-10-29T14:42:33+00:00
+$ kubectl auth can-i get secrets -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+2  get secrets en lab                       get secrets en lab : no no     ✅ (no)
+# 2026-10-29T14:42:34+00:00
+$ kubectl auth can-i patch deployments -n default --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+3  patch deployments en default             patch deployments en default : no no     ✅ (no)
+# 2026-10-29T14:42:36+00:00
+$ kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:lab:deployer
+Warning: resource 'clusterrolebindings' is not namespace scoped in group 'rbac.authorization.k8s.io'
+
+no
+exit=1
+
+4  create clusterrolebindings (clúster)    create clusterrolebindings: no no     ✅ (no)
+aciertos de tu predicción: 0/4
+predicción escrita: 2026-10-29T14:40:04+00:00
+#  caso                                     tu apuesta real   objetivo
+# 2026-10-29T14:49:39+00:00
+$ kubectl auth can-i patch deployments -n lab --as=system:serviceaccount:lab:deployer
+yes
+exit=0
+
+1  patch deployments en lab                 yes        yes    ✅ (yes)
+# 2026-10-29T14:49:40+00:00
+$ kubectl auth can-i get secrets -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+2  get secrets en lab                       no         no     ✅ (no)
+# 2026-10-29T14:49:42+00:00
+$ kubectl auth can-i patch deployments -n default --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+3  patch deployments en default             no         no     ✅ (no)
+# 2026-10-29T14:49:43+00:00
+$ kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:lab:deployer
+Warning: resource 'clusterrolebindings' is not namespace scoped in group 'rbac.authorization.k8s.io'
+
+no
+exit=1
+
+4  create clusterrolebindings (clúster)    no         no     ✅ (no)
+aciertos de tu predicción: 4/4
+predicción escrita: 2026-10-29T14:40:04+00:00
+#  caso                                     tu apuesta real   objetivo
+# 2026-10-29T15:16:43+00:00
+$ kubectl auth can-i patch deployments -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+1  patch deployments en lab                 yes        no     ❌ (se espera yes)
+# 2026-10-29T15:16:44+00:00
+$ kubectl auth can-i get secrets -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+2  get secrets en lab                       no         no     ✅ (no)
+# 2026-10-29T15:16:45+00:00
+$ kubectl auth can-i patch deployments -n default --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+3  patch deployments en default             no         no     ✅ (no)
+# 2026-10-29T15:16:46+00:00
+$ kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:lab:deployer
+Warning: resource 'clusterrolebindings' is not namespace scoped in group 'rbac.authorization.k8s.io'
+
+no
+exit=1
+
+4  create clusterrolebindings (clúster)    no         no     ✅ (no)
+aciertos de tu predicción: 3/4
+predicción escrita: 2026-10-29T14:40:04+00:00
+#  caso                                     tu apuesta real   objetivo
+# 2026-10-29T15:21:50+00:00
+$ kubectl auth can-i patch deployments -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+1  patch deployments en lab                 yes        no     ❌ (se espera yes)
+# 2026-10-29T15:21:52+00:00
+$ kubectl auth can-i get secrets -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+2  get secrets en lab                       no         no     ✅ (no)
+# 2026-10-29T15:21:53+00:00
+$ kubectl auth can-i patch deployments -n default --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+3  patch deployments en default             no         no     ✅ (no)
+# 2026-10-29T15:21:54+00:00
+$ kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:lab:deployer
+Warning: resource 'clusterrolebindings' is not namespace scoped in group 'rbac.authorization.k8s.io'
+
+no
+exit=1
+
+4  create clusterrolebindings (clúster)    no         no     ✅ (no)
+aciertos de tu predicción: 3/4
+predicción escrita: 2026-10-29T14:40:04+00:00
+#  caso                                     tu apuesta real   objetivo
+# 2026-10-29T15:22:07+00:00
+$ kubectl auth can-i patch deployments -n lab --as=system:serviceaccount:lab:deployer
+yes
+exit=0
+
+1  patch deployments en lab                 yes        yes    ✅ (yes)
+# 2026-10-29T15:22:08+00:00
+$ kubectl auth can-i get secrets -n lab --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+2  get secrets en lab                       no         no     ✅ (no)
+# 2026-10-29T15:22:09+00:00
+$ kubectl auth can-i patch deployments -n default --as=system:serviceaccount:lab:deployer
+no
+exit=1
+
+3  patch deployments en default             no         no     ✅ (no)
+# 2026-10-29T15:22:11+00:00
+$ kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:lab:deployer
+Warning: resource 'clusterrolebindings' is not namespace scoped in group 'rbac.authorization.k8s.io'
+
+no
+exit=1
+
+4  create clusterrolebindings (clúster)    no         no     ✅ (no)
+aciertos de tu predicción: 4/4

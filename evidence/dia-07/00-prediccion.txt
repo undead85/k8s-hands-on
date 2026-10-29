@@ -1,0 +1,4 @@
+patch deployments en lab : yes
+get secrets en lab : no
+patch deployments en default : no
+create clusterrolebindings: no
