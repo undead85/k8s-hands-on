@@ -10,9 +10,10 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 - **`api`**: 2 réplicas de `traefik/whoami:1.12.0` (por digest, puerto 8080, sin root, `requests` = `limits`), un backend de prueba que devuelve la petición que recibe. Service `api` (ClusterIP :80).
 - **Exposición HTTP** (Día 6): Traefik 3.7.16 (chart 42.1.3) en el namespace `traefik`, desde un manifiesto renderizado con `helm template` (`infra/traefik/traefik.yaml`); CRDs de Gateway API v1.6.3, canal estándar (`infra/gateway-api/`); un `Gateway` `lab-gateway` y una `HTTPRoute` `lab-routes` (host `lab.local`: `/` va a `web` y `/api` a `api`). No hay Ingress ni ingress-nginx.
 - **RBAC** (Día 7): ServiceAccount `deployer` con un `Role` mínimo (`get` y `patch` sobre `deployments`, solo en `lab`), y los Pods de `web` sin token de la API (`automountServiceAccountToken: false`).
+- **Hardening y Pod Security** (Día 8): `web` con `securityContext` completo (no-root, sin escalada de privilegios, `drop: ["ALL"]`, seccomp `RuntimeDefault`, raíz de solo lectura con un `emptyDir` en `/tmp`); `lab` impone Pod Security `baseline` y avisa y audita con `restricted`.
 - Las imágenes van fijadas por digest (`@sha256:…`).
 
-> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
+> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) y el 2026-11-02 (Día 8) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
 
 ## Requisitos y versiones usadas
 
@@ -46,9 +47,9 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 │       ├── traefik.yaml         # manifiesto renderizado (chart 42.1.3, Traefik 3.7.16)
 │       └── gateway.yaml         # Gateway lab-gateway (solo acepta rutas del namespace lab)
 ├── manifests/
-│   ├── namespace.yaml           # namespace lab
+│   ├── namespace.yaml           # namespace lab y etiquetas de Pod Security (Día 8)
 │   ├── web-configmap.yaml       # default.conf de nginx
-│   ├── web-deployment.yaml      # web x3, probes, requests = limits
+│   ├── web-deployment.yaml      # web x3, probes, requests = limits, securityContext (Día 8)
 │   ├── web-service.yaml         # Services web y web-headless
 │   ├── db-pvc.yaml              # PVC db-pvc (standard, RWO)
 │   ├── db-deployment.yaml       # MySQL con el PVC montado
@@ -179,6 +180,22 @@ kubectl auth can-i create clusterrolebindings --as=$WHO
 
 `bash scripts/dia-07.sh check` hace esas pruebas y deja la evidencia en `evidence/dia-07/`. `kubectl apply -f manifests/` aplica `rbac.yaml` sin un orden especial.
 
+## Hardening y Pod Security (Día 8)
+
+`manifests/namespace.yaml` etiqueta `lab` con Pod Security Admission: `enforce: baseline` (el servidor rechaza Pods privilegiados y otras escaladas conocidas), `warn: restricted` y `audit: restricted` (avisan de lo que faltaría para `restricted`, sin rechazar nada). `enforce` no está en `restricted` porque `db` (MySQL) corre como root y sin `securityContext`: con ese nivel sus Pods nuevos serían rechazados. Los Pods que ya corren no se desalojan. No se etiquetó el namespace `traefik`: su Pod usa `hostPort`, que `baseline` no permite.
+
+`web` cumple `restricted` (`manifests/web-deployment.yaml`): `runAsNonRoot` con UID 101, `seccompProfile: RuntimeDefault`, `allowPrivilegeEscalation: false`, `capabilities.drop: ["ALL"]` y `readOnlyRootFilesystem: true`. Con la raíz de solo lectura, `/tmp` es un `emptyDir` (el readiness del Día 4 busca ahí `/tmp/romper_readiness`). No se probó qué pasa sin ese `emptyDir`.
+
+Comprobación (esperado: sin aviso para `web`, con aviso para `db`):
+
+```bash
+kubectl get ns lab --show-labels
+kubectl apply --dry-run=server -f manifests/web-deployment.yaml   # sin "would violate PodSecurity"
+kubectl apply --dry-run=server -f manifests/db-deployment.yaml    # avisa: db corre como root
+```
+
+`bash scripts/dia-08.sh check` hace esas pruebas, revisa los 3 Pods de `web` y comprueba que un Pod con `privileged: true` es rechazado (`kubectl create --dry-run=server`, no crea nada). Deja la evidencia en `evidence/dia-08/`. Resultados observados el 2026-11-02, 15:57 UTC.
+
 ## Seguridad y convenciones
 
 - Ningún valor de contraseña va en archivos del repo, en `evidence/` ni en las notas. Lo vigilan `.gitignore` y el hook de `gitleaks`; antes de cada commit se revisa con `grep -rlF` sobre `README.md`, `evidence`, `docs`, `manifests`, `infra` y `scripts` (desde el Día 7 lo hace `bash scripts/dia-NN.sh pre`).
@@ -197,7 +214,8 @@ kubectl auth can-i create clusterrolebindings --as=$WHO
 | 5 | Persistencia (MySQL con PVC) y cierre del hito | ⚠️ con deuda | `dia-05` | [docs/dia-05-persistencia.md](docs/dia-05-persistencia.md) |
 | 6 | Exposición HTTP (Traefik con Gateway API) | ⚠️ con deuda | `dia-06` | [docs/dia-06-exposicion-http.md](docs/dia-06-exposicion-http.md) |
 | 7 | RBAC de mínimo privilegio | ✅ | `dia-07` | [docs/dia-07-rbac.md](docs/dia-07-rbac.md) |
-| 8–10 | Segunda semana | por hacer | — | — |
+| 8 | Hardening de Pods y Pod Security Admission | ✅ | `dia-08` | [docs/dia-08-hardening.md](docs/dia-08-hardening.md) |
+| 9–10 | Segunda semana | por hacer | — | — |
 
 ## Limitaciones conocidas
 
@@ -225,7 +243,7 @@ Es lo que sigue sin corregir o sin demostrar hoy. Las filas "no corregido" salen
 
 **Observadas en los manifiestos y evidencias**
 
-- **Recreación en varios pasos** (3 del laboratorio y 4 de la exposición HTTP), no en un comando (D5-2; Día 5, criterio 7 parcial). La recreación con la exposición HTTP no se probó desde cero (Día 6, criterio 7). No hay carpeta `scripts/` ni `kustomization.yaml`.
+- **Recreación en varios pasos** (3 del laboratorio y 4 de la exposición HTTP), no en un comando (D5-2; Día 5, criterio 7 parcial). La recreación con la exposición HTTP no se probó desde cero (Día 6, criterio 7). Los `scripts/dia-NN.sh` solo verifican cada día (`pre` y `check`); ninguno recrea el laboratorio, y no hay `kustomization.yaml`.
 - **`db` sin probes**: no hay forma automática de saber si MySQL ya acepta conexiones.
 - **`db` con `RollingUpdate`** (D5-1), 1 réplica y un volumen RWO: en la prueba de `evidence/dia-05/05-rollout.txt` el Pod nuevo pasó a `Running` a las 16:46:39 y el viejo empezó a `Terminating` a las 16:46:40 y llegó a `Completed` a las 16:46:43, los dos en `lab-worker2` y con el mismo PVC. Con `Recreate` (16:43:49 a 16:43:54) no hubo solapamiento. Dos MySQL sobre el mismo directorio de datos es un riesgo real. Las horas de ese archivo no indican zona; por la edad del Pod en evidence/dia-05/06-rotacion.txt son UTC.
 - **Anotación de prueba** `test: "rollout with a rolloutUpdate strategy"` en el template de `db`: se quedó de la prueba de rollout y fuerza un Pod nuevo si se edita.
@@ -238,6 +256,10 @@ Es lo que sigue sin corregir o sin demostrar hoy. Las filas "no corregido" salen
 - **Permisos amplios de Traefik**: la `ClusterRole` `traefik-traefik` da `get`, `list` y `watch` sobre `secrets` en todo el clúster. Hoy el laboratorio no usa TLS en el controlador. No se retomó en el Día 7 (era opcional) y sigue abierto. El controlador necesita el token de la API (su Deployment lo monta: `automountServiceAccountToken: true`), así que lo que se puede acotar es el permiso, no el token.
 - **Token de la API montado en `db`, `api` y Traefik**: solo `web` lo tiene desactivado (Día 7). `db` y `api` no lo necesitan y no se tocaron; Traefik sí lo necesita.
 - **`deployer` sin uso real**: el Role `deployer` se verificó con `can-i --as` y con un `rollout restart`, pero ningún proceso lo usa todavía.
+- **`db` fuera de `restricted`** (Día 8): corre como root y sin `securityContext`. Con `enforce: restricted` sus Pods nuevos serían rechazados, por eso `restricted` solo está en `warn` y `audit`. El aviso del servidor está en `evidence/dia-08/04-opcional-warnings.txt`. No se endureció `db`; Traefik tampoco se revisó.
+- **Pod Security solo en `lab`**: `traefik` no tiene etiquetas (su Pod usa `hostPort`).
+- **`audit: restricted` sin comprobar**: no se revisó el registro de auditoría del API server, así que hoy `audit` solo deja la intención escrita.
+- **Manifiestos que no coinciden con el clúster (sin verificar)**: `kubectl apply --dry-run=server -f manifests/` marca `db` y `lab-routes` como `configured` mientras el resto sale `unchanged` (`evidence/dia-08/00-seguro.txt`). No se investigó con `kubectl diff`.
 - **Traefik con 1 réplica y `hostPort`** en `lab-control-plane`: un solo punto de entrada, y no escala con más réplicas porque el puerto del nodo es uno.
 - **Tres versiones a mano**: el tag y el digest de la imagen (`values.yaml`), el chart y los CRDs de Gateway API se actualizan por separado. Según la guía de migración de Traefik, la versión de Gateway API que soporta cambia entre parches de la 3.7, así que subir uno sin los otros puede desfasarlos.
 - **`api` es `traefik/whoami`**: devuelve las cabeceras de la petición. Sirve para probar, no es una aplicación.
