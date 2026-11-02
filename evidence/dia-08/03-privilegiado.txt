@@ -1,0 +1,74 @@
+# 2026-11-02T15:28:42+00:00
+$ kubectl create --dry-run=server -f -   # Pod priv-test con privileged: true; no se crea nada
+apiVersion: v1
+kind: Pod
+metadata:
+  name: priv-test
+  namespace: lab
+spec:
+  containers:
+  - name: t
+    image: nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+    securityContext:
+      privileged: true
+--- respuesta ---
+Error from server (Forbidden): error when creating "STDIN": pods "priv-test" is forbidden: violates PodSecurity "restricted:latest": privileged (container "t" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "t" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "t" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "t" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "t" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+exit=1
+
+predicción escrita: 2026-11-02T15:07:11+00:00
+#  caso                                             tu apuesta real   objetivo
+1  web aparece en las advertencias de restricted    ?          no     ✅ (no)
+2  db aparece en las advertencias de restricted     ?          no     —
+3  api aparece en las advertencias de restricted    ?          no     —
+4  un Pod privilegiado es rechazado                 ?          yes    ✅ (yes)
+aciertos de tu predicción: 0/4
+# 2026-11-02T15:54:26+00:00
+$ kubectl create --dry-run=server -f -   # Pod priv-test con privileged: true; no se crea nada
+apiVersion: v1
+kind: Pod
+metadata:
+  name: priv-test
+  namespace: lab
+spec:
+  containers:
+  - name: t
+    image: nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+    securityContext:
+      privileged: true
+--- respuesta ---
+Error from server (Forbidden): error when creating "STDIN": pods "priv-test" is forbidden: violates PodSecurity "restricted:latest": privileged (container "t" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "t" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "t" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "t" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "t" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+exit=1
+
+predicción escrita: 2026-11-02T15:37:38+00:00
+⚠️  evidence/dia-08/00-prediccion.txt no tiene líneas yes/no: la apuesta no cuenta.
+#  caso                                             tu apuesta real   objetivo
+1  web aparece en las advertencias de restricted    ?          no     ✅ (no)
+2  db aparece en las advertencias de restricted     ?          yes    —
+3  api aparece en las advertencias de restricted    ?          no     —
+4  un Pod privilegiado es rechazado                 ?          yes    ✅ (yes)
+aciertos de tu predicción: 0/4
+# 2026-11-02T15:57:56+00:00
+$ kubectl create --dry-run=server -f -   # Pod priv-test con privileged: true; no se crea nada
+apiVersion: v1
+kind: Pod
+metadata:
+  name: priv-test
+  namespace: lab
+spec:
+  containers:
+  - name: t
+    image: nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e
+    securityContext:
+      privileged: true
+--- respuesta ---
+Error from server (Forbidden): error when creating "STDIN": pods "priv-test" is forbidden: violates PodSecurity "baseline:latest": privileged (container "t" must not set securityContext.privileged=true)
+exit=1
+
+predicción escrita: 2026-11-02T15:37:38+00:00
+⚠️  evidence/dia-08/00-prediccion.txt no tiene líneas yes/no: la apuesta no cuenta.
+#  caso                                             tu apuesta real   objetivo
+1  web aparece en las advertencias de restricted    ?          no     ✅ (no)
+2  db aparece en las advertencias de restricted     ?          yes    —
+3  api aparece en las advertencias de restricted    ?          no     —
+4  un Pod privilegiado es rechazado                 ?          yes    ✅ (yes)
+aciertos de tu predicción: 0/4

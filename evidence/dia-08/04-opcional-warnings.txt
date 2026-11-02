@@ -1,0 +1,17 @@
+# 2026-11-02T15:28:43+00:00
+$ kubectl label --dry-run=server --overwrite ns lab pod-security.kubernetes.io/enforce=restricted   # líneas de db y api
+(sin advertencias de db ni api)
+
+# 2026-11-02T15:54:28+00:00
+$ kubectl apply --dry-run=server -f manifests/db-deployment.yaml -f manifests/api.yaml   # avisos de restricted
+[db]
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "mysql" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+[api]
+(sin avisos)
+
+# 2026-11-02T15:57:57+00:00
+$ kubectl apply --dry-run=server -f manifests/db-deployment.yaml -f manifests/api.yaml   # avisos de restricted
+[db]
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "mysql" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+[api]
+(sin avisos)

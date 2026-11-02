@@ -1,0 +1,65 @@
+# 2026-11-02T15:28:31+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=120s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-11-02T15:28:32+00:00
+$ kubectl -n lab get deploy web -o jsonpath=runAsNonRoot=\{.spec.template.spec.securityContext.runAsNonRoot\}\ seccomp=\{.spec.template.spec.securityContext.seccompProfile.type\}\ cseccomp=\{.spec.template.spec.containers\[0\].securityContext.seccompProfile.type\}\ allowPrivilegeEscalation=\{.spec.template.spec.containers\[0\].securityContext.allowPrivilegeEscalation\}\ readOnlyRootFilesystem=\{.spec.template.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\ drop=\{.spec.template.spec.containers\[0\].securityContext.capabilities.drop\[\*\]\}\ tmp=\{.spec.template.spec.containers\[0\].volumeMounts\[\?\(@.mountPath==\"/tmp\"\)\].name\}\ ready=\{.status.readyReplicas\}/\{.spec.replicas\}\{\"\\n\"\}
+runAsNonRoot=true seccomp=RuntimeDefault cseccomp= allowPrivilegeEscalation=false readOnlyRootFilesystem=true drop=ALL tmp=tmp ready=3/3
+exit=0
+
+# 2026-11-02T15:28:33+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.deletionTimestamp\}\{\"\|\"\}\{.metadata.name\}\{\"\|\"\}\{.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\{\"\|\"\}\{.status.phase\}\{\"\\n\"\}\{end\}
+|web-5fff4947bc-7rpbs|true|Running
+|web-5fff4947bc-9ztwj|true|Running
+|web-5fff4947bc-wdr7x|true|Running
+exit=0
+
+# 2026-11-02T15:28:34+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0
+
+# 2026-11-02T15:54:14+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=120s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-11-02T15:54:15+00:00
+$ kubectl -n lab get deploy web -o jsonpath=runAsNonRoot=\{.spec.template.spec.securityContext.runAsNonRoot\}\ seccomp=\{.spec.template.spec.securityContext.seccompProfile.type\}\ cseccomp=\{.spec.template.spec.containers\[0\].securityContext.seccompProfile.type\}\ allowPrivilegeEscalation=\{.spec.template.spec.containers\[0\].securityContext.allowPrivilegeEscalation\}\ readOnlyRootFilesystem=\{.spec.template.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\ drop=\{.spec.template.spec.containers\[0\].securityContext.capabilities.drop\[\*\]\}\ tmp=\{.spec.template.spec.containers\[0\].volumeMounts\[\?\(@.mountPath==\"/tmp\"\)\].name\}\ ready=\{.status.readyReplicas\}/\{.spec.replicas\}\{\"\\n\"\}
+runAsNonRoot=true seccomp=RuntimeDefault cseccomp= allowPrivilegeEscalation=false readOnlyRootFilesystem=true drop=ALL tmp=tmp ready=3/3
+exit=0
+
+# 2026-11-02T15:54:15+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.deletionTimestamp\}\{\"\|\"\}\{.metadata.name\}\{\"\|\"\}\{.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\{\"\|\"\}\{.status.phase\}\{\"\\n\"\}\{end\}
+|web-5fff4947bc-7rpbs|true|Running
+|web-5fff4947bc-9ztwj|true|Running
+|web-5fff4947bc-wdr7x|true|Running
+exit=0
+
+# 2026-11-02T15:54:16+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0
+
+# 2026-11-02T15:57:44+00:00
+$ kubectl -n lab rollout status deploy/web --timeout=120s
+deployment "web" successfully rolled out
+exit=0
+
+# 2026-11-02T15:57:45+00:00
+$ kubectl -n lab get deploy web -o jsonpath=runAsNonRoot=\{.spec.template.spec.securityContext.runAsNonRoot\}\ seccomp=\{.spec.template.spec.securityContext.seccompProfile.type\}\ cseccomp=\{.spec.template.spec.containers\[0\].securityContext.seccompProfile.type\}\ allowPrivilegeEscalation=\{.spec.template.spec.containers\[0\].securityContext.allowPrivilegeEscalation\}\ readOnlyRootFilesystem=\{.spec.template.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\ drop=\{.spec.template.spec.containers\[0\].securityContext.capabilities.drop\[\*\]\}\ tmp=\{.spec.template.spec.containers\[0\].volumeMounts\[\?\(@.mountPath==\"/tmp\"\)\].name\}\ ready=\{.status.readyReplicas\}/\{.spec.replicas\}\{\"\\n\"\}
+runAsNonRoot=true seccomp=RuntimeDefault cseccomp= allowPrivilegeEscalation=false readOnlyRootFilesystem=true drop=ALL tmp=tmp ready=3/3
+exit=0
+
+# 2026-11-02T15:57:46+00:00
+$ kubectl -n lab get pods -l app=web -o jsonpath=\{range\ .items\[\*\]\}\{.metadata.deletionTimestamp\}\{\"\|\"\}\{.metadata.name\}\{\"\|\"\}\{.spec.containers\[0\].securityContext.readOnlyRootFilesystem\}\{\"\|\"\}\{.status.phase\}\{\"\\n\"\}\{end\}
+|web-5fff4947bc-7rpbs|true|Running
+|web-5fff4947bc-9ztwj|true|Running
+|web-5fff4947bc-wdr7x|true|Running
+exit=0
+
+# 2026-11-02T15:57:46+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0

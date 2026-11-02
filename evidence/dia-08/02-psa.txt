@@ -1,0 +1,53 @@
+# 2026-11-02T15:28:36+00:00
+$ kubectl get ns lab -o jsonpath=enforce=\{.metadata.labels.pod-security\\.kubernetes\\.io/enforce\}\ warn=\{.metadata.labels.pod-security\\.kubernetes\\.io/warn\}\ audit=\{.metadata.labels.pod-security\\.kubernetes\\.io/audit\}\{\"\\n\"\}
+enforce=restricted warn=restricted audit=restricted
+exit=0
+
+# 2026-11-02T15:28:38+00:00
+$ kubectl label --dry-run=server --overwrite ns lab pod-security.kubernetes.io/enforce=restricted
+namespace/lab not labeled (server dry run)
+exit=0
+
+# 2026-11-02T15:54:19+00:00
+$ kubectl get ns lab -o jsonpath=enforce=\{.metadata.labels.pod-security\\.kubernetes\\.io/enforce\}\ warn=\{.metadata.labels.pod-security\\.kubernetes\\.io/warn\}\ audit=\{.metadata.labels.pod-security\\.kubernetes\\.io/audit\}\{\"\\n\"\}
+enforce=restricted warn=restricted audit=restricted
+exit=0
+
+# 2026-11-02T15:54:20+00:00
+$ kubectl apply --dry-run=server -f manifests/web-deployment.yaml
+deployment.apps/web unchanged (server dry run)
+exit=0
+
+# 2026-11-02T15:54:21+00:00
+$ kubectl apply --dry-run=server -f manifests/db-deployment.yaml
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "mysql" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+deployment.apps/db configured (server dry run)
+exit=0
+
+# 2026-11-02T15:54:23+00:00
+$ kubectl apply --dry-run=server -f manifests/api.yaml
+deployment.apps/api unchanged (server dry run)
+service/api unchanged (server dry run)
+exit=0
+
+# 2026-11-02T15:57:48+00:00
+$ kubectl get ns lab -o jsonpath=enforce=\{.metadata.labels.pod-security\\.kubernetes\\.io/enforce\}\ warn=\{.metadata.labels.pod-security\\.kubernetes\\.io/warn\}\ audit=\{.metadata.labels.pod-security\\.kubernetes\\.io/audit\}\{\"\\n\"\}
+enforce=baseline warn=restricted audit=restricted
+exit=0
+
+# 2026-11-02T15:57:49+00:00
+$ kubectl apply --dry-run=server -f manifests/web-deployment.yaml
+deployment.apps/web unchanged (server dry run)
+exit=0
+
+# 2026-11-02T15:57:51+00:00
+$ kubectl apply --dry-run=server -f manifests/db-deployment.yaml
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "mysql" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+deployment.apps/db configured (server dry run)
+exit=0
+
+# 2026-11-02T15:57:52+00:00
+$ kubectl apply --dry-run=server -f manifests/api.yaml
+deployment.apps/api unchanged (server dry run)
+service/api unchanged (server dry run)
+exit=0

@@ -1,0 +1,140 @@
+# 2026-11-02T14:38:34+00:00
+$ gitleaks git --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m11:38AM[0m [32mINF[0m [1m18 commits scanned.[0m
+[90m11:38AM[0m [32mINF[0m [1mscanned ~1388818 bytes (1.39 MB) in 1.45s[0m
+[90m11:38AM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-11-02T14:38:38+00:00
+$ gitleaks dir --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m11:38AM[0m [32mINF[0m [1mscanned ~1396251 bytes (1.40 MB) in 1.5s[0m
+[90m11:38AM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-11-02T14:38:43+00:00
+$ grep -rlF -f <valores de mysql-secret, $MYSQL_PWD, $VIEJA, $NUEVA, $AZAR> README.md docs evidence manifests infra scripts
+patrones usados: 5
+sin coincidencias
+
+# 2026-11-02T14:38:44+00:00
+$ kubectl get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+lab-control-plane   Ready    control-plane   23d   v1.37.0
+lab-worker          Ready    <none>          23d   v1.37.0
+lab-worker2         Ready    <none>          23d   v1.37.0
+exit=0
+
+# 2026-11-02T14:38:45+00:00
+$ kubectl -n lab get deploy\,pods
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api   2/2     2            2           4d15h
+deployment.apps/db    1/1     1            1           7d19h
+deployment.apps/web   3/3     3            3           7d19h
+
+NAME                       READY   STATUS    RESTARTS      AGE
+pod/api-6ff4c966b4-g8h8r   1/1     Running   1 (31m ago)   4d15h
+pod/api-6ff4c966b4-xnh6q   1/1     Running   0             4d15h
+pod/db-7c5bfdffc9-cqdxs    1/1     Running   0             7d19h
+pod/web-59fc4496cd-9rgtr   1/1     Running   0             3d22h
+pod/web-59fc4496cd-cfc4h   1/1     Running   0             3d22h
+pod/web-59fc4496cd-chfp7   1/1     Running   1 (31m ago)   3d22h
+exit=0
+
+# 2026-11-02T14:38:48+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0
+
+# 2026-11-02T15:59:28+00:00
+$ gitleaks git --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m12:59PM[0m [32mINF[0m [1m18 commits scanned.[0m
+[90m12:59PM[0m [32mINF[0m [1mscanned ~1388818 bytes (1.39 MB) in 1.08s[0m
+[90m12:59PM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-11-02T15:59:31+00:00
+$ gitleaks dir --redact
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m12:59PM[0m [32mINF[0m [1mscanned ~1412921 bytes (1.41 MB) in 270ms[0m
+[90m12:59PM[0m [32mINF[0m [1mno leaks found[0m
+exit=0
+
+# 2026-11-02T15:59:35+00:00
+$ grep -rlF -f <valores de mysql-secret, $MYSQL_PWD, $VIEJA, $NUEVA, $AZAR> README.md docs evidence manifests infra scripts
+patrones usados: 5
+sin coincidencias
+
+# 2026-11-02T15:59:35+00:00
+$ kubectl apply --dry-run=server -f manifests/
+deployment.apps/api unchanged (server dry run)
+service/api unchanged (server dry run)
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "mysql" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "mysql" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "mysql" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "mysql" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+deployment.apps/db configured (server dry run)
+persistentvolumeclaim/db-pvc unchanged (server dry run)
+service/db unchanged (server dry run)
+namespace/lab unchanged (server dry run)
+serviceaccount/deployer unchanged (server dry run)
+role.rbac.authorization.k8s.io/deployer unchanged (server dry run)
+rolebinding.rbac.authorization.k8s.io/deployer unchanged (server dry run)
+httproute.gateway.networking.k8s.io/lab-routes configured (server dry run)
+configmap/web-config unchanged (server dry run)
+deployment.apps/web unchanged (server dry run)
+service/web unchanged (server dry run)
+service/web-headless unchanged (server dry run)
+exit=0
+
+# 2026-11-02T15:59:38+00:00
+$ kubectl get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+lab-control-plane   Ready    control-plane   23d   v1.37.0
+lab-worker          Ready    <none>          23d   v1.37.0
+lab-worker2         Ready    <none>          23d   v1.37.0
+exit=0
+
+# 2026-11-02T15:59:39+00:00
+$ kubectl -n lab get deploy\,pods
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api   2/2     2            2           4d16h
+deployment.apps/db    1/1     1            1           7d20h
+deployment.apps/web   3/3     3            3           7d20h
+
+NAME                       READY   STATUS    RESTARTS       AGE
+pod/api-6ff4c966b4-g8h8r   1/1     Running   1 (111m ago)   4d16h
+pod/api-6ff4c966b4-xnh6q   1/1     Running   0              4d16h
+pod/db-7c5bfdffc9-cqdxs    1/1     Running   0              7d20h
+pod/web-5fff4947bc-7rpbs   1/1     Running   0              31m
+pod/web-5fff4947bc-9ztwj   1/1     Running   0              31m
+pod/web-5fff4947bc-wdr7x   1/1     Running   0              31m
+exit=0
+
+# 2026-11-02T15:59:41+00:00
+$ curl -s -o /dev/null -w %\{http_code\}\\n -H Host:\ lab.local http://127.0.0.1/
+200
+exit=0
