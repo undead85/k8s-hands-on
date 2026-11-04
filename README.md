@@ -11,9 +11,10 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 - **Exposición HTTP** (Día 6): Traefik 3.7.16 (chart 42.1.3) en el namespace `traefik`, desde un manifiesto renderizado con `helm template` (`infra/traefik/traefik.yaml`); CRDs de Gateway API v1.6.3, canal estándar (`infra/gateway-api/`); un `Gateway` `lab-gateway` y una `HTTPRoute` `lab-routes` (host `lab.local`: `/` va a `web` y `/api` a `api`). No hay Ingress ni ingress-nginx.
 - **RBAC** (Día 7): ServiceAccount `deployer` con un `Role` mínimo (`get` y `patch` sobre `deployments`, solo en `lab`), y los Pods de `web` sin token de la API (`automountServiceAccountToken: false`).
 - **Hardening y Pod Security** (Día 8): `web` con `securityContext` completo (no-root, sin escalada de privilegios, `drop: ["ALL"]`, seccomp `RuntimeDefault`, raíz de solo lectura con un `emptyDir` en `/tmp`); `lab` impone Pod Security `baseline` y avisa y audita con `restricted`.
+- **NetworkPolicy** (Día 9): `default-deny` (Ingress y Egress) en `lab` y cinco políticas de permiso mínimo: DNS para todos los Pods, Traefik → `web` y `api` por el puerto 8080, y `web` → `db` por el 3306 (salida de `web` y entrada de `db`).
 - Las imágenes van fijadas por digest (`@sha256:…`).
 
-> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) y el 2026-11-02 (Día 8) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
+> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) y el 2026-11-02 (Día 8) y el 2026-11-04 (Día 9) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
 
 ## Requisitos y versiones usadas
 
@@ -56,7 +57,8 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 │   ├── db-service.yaml          # Service db
 │   ├── api.yaml                 # Deployment y Service api (whoami x2)
 │   ├── routes.yaml              # HTTPRoute lab-routes (lab.local)
-│   └── rbac.yaml                # ServiceAccount deployer, Role y RoleBinding (Día 7)
+│   ├── rbac.yaml                # ServiceAccount deployer, Role y RoleBinding (Día 7)
+│   └── netpol.yaml              # 6 NetworkPolicy de lab: default-deny y permisos mínimos (Día 9)
 ├── scripts/                     # dia-NN.sh: Parte 0 y evidencia (desde el Día 7)
 ├── docs/dia-NN-*.md             # nota de cada día: objetivo, criterios, decisiones, preguntas
 ├── evidence/dia-NN/*.txt        # salida real de los comandos, con hora y comando
@@ -196,6 +198,40 @@ kubectl apply --dry-run=server -f manifests/db-deployment.yaml    # avisa: db co
 
 `bash scripts/dia-08.sh check` hace esas pruebas, revisa los 3 Pods de `web` y comprueba que un Pod con `privileged: true` es rechazado (`kubectl create --dry-run=server`, no crea nada). Deja la evidencia en `evidence/dia-08/`. Resultados observados el 2026-11-02, 15:57 UTC.
 
+## NetworkPolicy (Día 9)
+
+`manifests/netpol.yaml` crea 6 NetworkPolicy en `lab`. El archivo pone `default-deny` al final para no cortar tráfico mientras se aplica; una vez aplicadas, el orden no cambia el resultado (las políticas se suman).
+
+| Política | Qué hace |
+|---|---|
+| `default-deny` | Selecciona todos los Pods de `lab` y declara `Ingress` y `Egress` sin reglas: lo que ninguna otra política permita, se descarta |
+| `allow-dns` | Todos los Pods pueden salir hacia CoreDNS (Pods `k8s-app=kube-dns` de `kube-system`, puerto 53 UDP y TCP). Sin ella, `default-deny` corta la resolución de nombres |
+| `web-ingress` | `web` solo recibe de los Pods de Traefik, por el puerto 8080 |
+| `api-ingress` | Igual para `api` (puerto 8080) |
+| `db-ingress` | `db` solo recibe de los Pods `app=web`, por el puerto 3306 |
+| `web-to-db` | `web` puede salir hacia los Pods `app=db`, por el puerto 3306 |
+
+Las reglas hablan del puerto del Pod (8080 y 3306), no del puerto 80 del Service. En `web-ingress` y `api-ingress`, el `namespaceSelector` (`kubernetes.io/metadata.name: traefik`) y el `podSelector` (`app.kubernetes.io/name: traefik`) van en el mismo elemento, así que valen juntos (Y). Un camino necesita los dos lados: `web` → `db` pide `web-to-db` (salida) y `db-ingress` (entrada); quitar solo `web-to-db` basta para que falle (opcional O1 del Día 9).
+
+Comprobación (esperado: 3 pruebas funcionan y 3 agotan el tiempo):
+
+| # | Prueba | Esperado |
+|---|---|---|
+| 1 | Traefik → `web` (`curl -H 'Host: lab.local' http://127.0.0.1/`) | funciona |
+| 2 | Traefik → `api` (`curl -H 'Host: lab.local' http://127.0.0.1/api`) | funciona |
+| 3 | `web` → `db`:3306 (`nc -z -w 3`) | funciona |
+| 4 | Pod de `default` → `db`:3306 | falla por timeout |
+| 5 | `web` → `api`:80 (`wget -T 3`) | falla por timeout |
+| 6 | Pod de `default` → `web`:80 | falla por timeout |
+
+```bash
+bash scripts/dia-09.sh antes             # sin políticas: las 6 pruebas deben funcionar
+kubectl apply -f manifests/netpol.yaml
+bash scripts/dia-09.sh check            # criterios 1 a 3 y la matriz
+```
+
+Las pruebas 4 y 6 salen de un Pod `np-probe` que el script crea en `default` (misma imagen que `web`) y borra al terminar. Las hace cumplir el CNI de kind: el único DaemonSet de red en `kube-system` es `kindnet`. Resultados observados el 2026-11-04, 21:40 UTC (`evidence/dia-09/03-matriz.txt`): pruebas 1 a 3 en ≤1 s; pruebas 4 a 6 agotan el tiempo a los 4 s. `web` 3/3, `api` 2/2 y `db` 1/1 siguieron Ready, sin reinicios nuevos, 2'45" después de aplicar. En el opcional O1 (sin `web-to-db`), `web` → `db`:3306 falló con exit 1.
+
 ## Seguridad y convenciones
 
 - Ningún valor de contraseña va en archivos del repo, en `evidence/` ni en las notas. Lo vigilan `.gitignore` y el hook de `gitleaks`; antes de cada commit se revisa con `grep -rlF` sobre `README.md`, `evidence`, `docs`, `manifests`, `infra` y `scripts` (desde el Día 7 lo hace `bash scripts/dia-NN.sh pre`).
@@ -215,7 +251,8 @@ kubectl apply --dry-run=server -f manifests/db-deployment.yaml    # avisa: db co
 | 6 | Exposición HTTP (Traefik con Gateway API) | ⚠️ con deuda | `dia-06` | [docs/dia-06-exposicion-http.md](docs/dia-06-exposicion-http.md) |
 | 7 | RBAC de mínimo privilegio | ✅ | `dia-07` | [docs/dia-07-rbac.md](docs/dia-07-rbac.md) |
 | 8 | Hardening de Pods y Pod Security Admission | ✅ | `dia-08` | [docs/dia-08-hardening.md](docs/dia-08-hardening.md) |
-| 9–10 | Segunda semana | por hacer | — | — |
+| 9 | NetworkPolicy (default-deny con permisos mínimos) | ✅ | `dia-09` | [docs/dia-09-networkpolicy.md](docs/dia-09-networkpolicy.md) |
+| 10 | HPA y PDB | por hacer | — | — |
 
 ## Limitaciones conocidas
 
@@ -258,8 +295,13 @@ Es lo que sigue sin corregir o sin demostrar hoy. Las filas "no corregido" salen
 - **`deployer` sin uso real**: el Role `deployer` se verificó con `can-i --as` y con un `rollout restart`, pero ningún proceso lo usa todavía.
 - **`db` fuera de `restricted`** (Día 8): corre como root y sin `securityContext`. Con `enforce: restricted` sus Pods nuevos serían rechazados, por eso `restricted` solo está en `warn` y `audit`. El aviso del servidor está en `evidence/dia-08/04-opcional-warnings.txt`. No se endureció `db`; Traefik tampoco se revisó.
 - **Pod Security solo en `lab`**: `traefik` no tiene etiquetas (su Pod usa `hostPort`).
+- **NetworkPolicy solo en `lab`** (Día 9): `traefik`, `default` y `kube-system` no tienen políticas. Traefik puede conectarse a cualquier destino y recibir de cualquier origen.
+- **Matriz de NetworkPolicy parcial**: la prueba 5 (`web` → `api`) la bloquean a la vez la salida de `web` y la entrada de `api`, así que `api-ingress` solo está probada en positivo (prueba 2). No hay una prueba negativa desde otro Pod de `lab` (por ejemplo, `api` → `db`).
+- **`web` → `db`:3306 permitido sin necesidad real**: nginx no usa MySQL. `web-to-db` y `db-ingress` existen porque el ejercicio pide ese camino; en una aplicación real se darían al servicio que sí lo usa.
+- **O1 del Día 9 sin restauración en la evidencia**: `evidence/dia-09/O1-sin-web-to-db.txt` termina con la prueba fallando, sin hora ni duración, y no muestra que `web-to-db` se haya vuelto a aplicar. Hasta que se compruebe (`kubectl -n lab get networkpolicy` debe listar 6), el estado vivo de esa política no consta.
+- **Clientes de prueba en `lab` (sin probar)**: con `default-deny`, un Pod creado con `kubectl run` en `lab` (como los clientes MySQL del Día 5) no tiene política que le permita llegar a `db`. Habría que añadirla; es el opcional O2 del Día 9, no realizado.
 - **`audit: restricted` sin comprobar**: no se revisó el registro de auditoría del API server, así que hoy `audit` solo deja la intención escrita.
-- **Manifiestos que no coinciden con el clúster (sin verificar)**: `kubectl apply --dry-run=server -f manifests/` marca `db` y `lab-routes` como `configured` mientras el resto sale `unchanged` (`evidence/dia-08/00-seguro.txt`). No se investigó con `kubectl diff`.
+- **Manifiestos que no coinciden con el clúster (sin verificar)**: `kubectl apply --dry-run=server -f manifests/` marca `db` y `lab-routes` como `configured` mientras el resto sale `unchanged` (`evidence/dia-08/00-seguro.txt`). No se investigó con `kubectl diff`. Sigue igual el 2026-11-04 (`evidence/dia-09/00-seguro.txt`, 21:59 UTC): `db` y `lab-routes` salen `configured` y las 6 NetworkPolicy `unchanged`.
 - **Traefik con 1 réplica y `hostPort`** en `lab-control-plane`: un solo punto de entrada, y no escala con más réplicas porque el puerto del nodo es uno.
 - **Tres versiones a mano**: el tag y el digest de la imagen (`values.yaml`), el chart y los CRDs de Gateway API se actualizan por separado. Según la guía de migración de Traefik, la versión de Gateway API que soporta cambia entre parches de la 3.7, así que subir uno sin los otros puede desfasarlos.
 - **`api` es `traefik/whoami`**: devuelve las cabeceras de la petición. Sirve para probar, no es una aplicación.
