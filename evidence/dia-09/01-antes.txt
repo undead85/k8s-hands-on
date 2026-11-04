@@ -1,0 +1,47 @@
+# 2026-11-04T21:16:53+00:00
+$ kubectl -n default run np-probe --image=nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e --restart=Never --command -- sleep 600
+pod/np-probe created
+exit=0
+
+# 2026-11-04T21:16:54+00:00
+$ kubectl -n default wait --for=condition=Ready pod/np-probe --timeout=90s
+pod/np-probe condition met
+exit=0
+
+# 2026-11-04T21:16:57+00:00
+# caso: Traefik -> web (curl / con Host lab.local)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/
+exit=0  segundos=0
+
+# 2026-11-04T21:16:58+00:00
+# caso: Traefik -> api (curl /api)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/api
+exit=0  segundos=1
+
+# 2026-11-04T21:16:59+00:00
+# caso: web -> db:3306
+$ kubectl -n lab exec deploy/web -- nc -z -w 3 db.lab.svc.cluster.local 3306
+exit=0  segundos=1
+
+# 2026-11-04T21:17:00+00:00
+# caso: Pod de default -> db:3306
+$ kubectl -n default exec np-probe -- nc -z -w 3 db.lab.svc.cluster.local 3306
+exit=0  segundos=1
+
+# 2026-11-04T21:17:01+00:00
+# caso: web -> api:80
+$ kubectl -n lab exec deploy/web -- wget -q -T 3 -O- http://api.lab.svc.cluster.local/
+exit=0  segundos=1
+
+# 2026-11-04T21:17:02+00:00
+# caso: Pod de default -> web:80
+$ kubectl -n default exec np-probe -- wget -q -T 3 -O- http://web.lab.svc.cluster.local/
+exit=0  segundos=1
+
+#  caso                                         real   seg
+1  Traefik -> web (curl / con Host lab.local)   yes    0s
+2  Traefik -> api (curl /api)                   yes    1s
+3  web -> db:3306                               yes    1s
+4  Pod de default -> db:3306                    yes    1s
+5  web -> api:80                                yes    1s
+6  Pod de default -> web:80                     yes    1s

@@ -1,0 +1,103 @@
+# 2026-11-04T21:35:59+00:00
+$ kubectl -n default run np-probe --image=nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e --restart=Never --command -- sleep 600
+pod/np-probe created
+exit=0
+
+# 2026-11-04T21:35:59+00:00
+$ kubectl -n default wait --for=condition=Ready pod/np-probe --timeout=90s
+pod/np-probe condition met
+exit=0
+
+# 2026-11-04T21:36:02+00:00
+# caso: Traefik -> web (curl / con Host lab.local)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/
+exit=0  segundos=1
+
+# 2026-11-04T21:36:02+00:00
+# caso: Traefik -> api (curl /api)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/api
+exit=0  segundos=0
+
+# 2026-11-04T21:36:03+00:00
+# caso: web -> db:3306
+$ kubectl -n lab exec deploy/web -- nc -z -w 3 db.lab.svc.cluster.local 3306
+exit=0  segundos=1
+
+# 2026-11-04T21:36:04+00:00
+# caso: Pod de default -> db:3306
+$ kubectl -n default exec np-probe -- nc -z -w 3 db.lab.svc.cluster.local 3306
+exit=0  segundos=1
+
+# 2026-11-04T21:36:05+00:00
+# caso: web -> api:80
+$ kubectl -n lab exec deploy/web -- wget -q -T 3 -O- http://api.lab.svc.cluster.local/
+exit=0  segundos=1
+
+# 2026-11-04T21:36:06+00:00
+# caso: Pod de default -> web:80
+$ kubectl -n default exec np-probe -- wget -q -T 3 -O- http://web.lab.svc.cluster.local/
+exit=0  segundos=1
+
+predicción escrita: 2026-11-04T21:14:51+00:00
+#  caso                                         tu apuesta real   seg   objetivo
+1  Traefik -> web (curl / con Host lab.local)   yes        yes    1s    ✅ funciona
+2  Traefik -> api (curl /api)                   yes        yes    0s    ✅ funciona
+3  web -> db:3306                               yes        yes    1s    ✅ funciona
+4  Pod de default -> db:3306                    no         yes    1s    ❌ pasó (debía bloquearse)
+5  web -> api:80                                no         yes    1s    ❌ pasó (debía bloquearse)
+6  Pod de default -> web:80                     no         yes    1s    ❌ pasó (debía bloquearse)
+aciertos de tu predicción: 3/6
+# 2026-11-04T21:40:13+00:00
+$ kubectl -n default run np-probe --image=nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e --restart=Never --command -- sleep 600
+pod/np-probe created
+exit=0
+
+# 2026-11-04T21:40:14+00:00
+$ kubectl -n default wait --for=condition=Ready pod/np-probe --timeout=90s
+pod/np-probe condition met
+exit=0
+
+# 2026-11-04T21:40:16+00:00
+# caso: Traefik -> web (curl / con Host lab.local)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/
+exit=0  segundos=1
+
+# 2026-11-04T21:40:16+00:00
+# caso: Traefik -> api (curl /api)
+$ curl -fs --max-time 5 -H Host:\ lab.local http://127.0.0.1/api
+exit=0  segundos=0
+
+# 2026-11-04T21:40:17+00:00
+# caso: web -> db:3306
+$ kubectl -n lab exec deploy/web -- nc -z -w 3 db.lab.svc.cluster.local 3306
+exit=0  segundos=1
+
+# 2026-11-04T21:40:21+00:00
+# caso: Pod de default -> db:3306
+$ kubectl -n default exec np-probe -- nc -z -w 3 db.lab.svc.cluster.local 3306
+command terminated with exit code 1
+exit=1  segundos=4
+
+# 2026-11-04T21:40:25+00:00
+# caso: web -> api:80
+$ kubectl -n lab exec deploy/web -- wget -q -T 3 -O- http://api.lab.svc.cluster.local/
+wget: download timed out
+command terminated with exit code 1
+exit=1  segundos=4
+
+# 2026-11-04T21:40:29+00:00
+# caso: Pod de default -> web:80
+$ kubectl -n default exec np-probe -- wget -q -T 3 -O- http://web.lab.svc.cluster.local/
+wget: download timed out
+command terminated with exit code 1
+exit=1  segundos=4
+
+predicción escrita: 2026-11-04T21:14:51+00:00
+#  caso                                         tu apuesta real   seg   objetivo
+1  Traefik -> web (curl / con Host lab.local)   yes        yes    1s    ✅ funciona
+2  Traefik -> api (curl /api)                   yes        yes    0s    ✅ funciona
+3  web -> db:3306                               yes        yes    1s    ✅ funciona
+4  Pod de default -> db:3306                    no         no     4s    ✅ timeout (4s)
+5  web -> api:80                                no         no     4s    ✅ timeout (4s)
+6  Pod de default -> web:80                     no         no     4s    ✅ timeout (4s)
+aciertos de tu predicción: 6/6

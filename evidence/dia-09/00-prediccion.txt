@@ -1,0 +1,8 @@
+# Día 9: tu predicción del estado FINAL, con las 6 políticas ya aplicadas.
+# Escribe yes (funciona) o no (falla) al final de cada línea y GUARDA el archivo ANTES de aplicar.
+1. Traefik -> web (curl / con Host lab.local): yes
+2. Traefik -> api (curl /api): yes
+3. web -> db:3306: yes
+4. Pod de default -> db:3306: no
+5. web -> api:80: no
+6. Pod de default -> web:80: no

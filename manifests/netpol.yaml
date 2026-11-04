@@ -1,0 +1,80 @@
+# manifests/netpol.yaml: NetworkPolicy de `lab` (Día 9). Completa los BLANCOS 1 a 5.
+# Orden: primero los permisos y al final default-deny, para no cortar nada a mitad del apply.
+# Las reglas hablan del puerto del Pod (containerPort), no del puerto del Service.
+---
+# Todos los Pods de lab pueden preguntar al DNS del clúster (CoreDNS vive en kube-system).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-dns, namespace: lab }
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: kube-system } }
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+# Solo los Pods de Traefik pueden llegar a web.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: web-ingress, namespace: lab }
+spec:
+  podSelector: { matchLabels: { app: web } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: traefik } }   # BLANCO 1: el namespace de Traefik
+          podSelector: { matchLabels: { app.kubernetes.io/name: traefik } }
+      ports:
+        - { protocol: TCP, port: 8080 }                                               # BLANCO 2: el puerto del Pod web
+---
+# Solo los Pods de Traefik pueden llegar a api.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: api-ingress, namespace: lab }
+spec:
+  podSelector: { matchLabels: { app: api } }
+  policyTypes: [Ingress]
+  ingress:                                                                       # BLANCO 3: el bloque ingress completo, parecido al de web-ingress
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: traefik } }
+          podSelector: { matchLabels: { app.kubernetes.io/name: traefik } }
+      ports:
+        - { protocol: TCP, port: 8080}
+---
+# Solo web puede llegar a db (lado de entrada).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: db-ingress, namespace: lab }
+spec:
+  podSelector: { matchLabels: { app: db } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: web } }                                 # BLANCO 4: quién puede conectarse a db
+      ports:
+        - { protocol: TCP, port: 3306 }
+---
+# web puede salir hacia db (lado de salida; sin esta política, db-ingress no basta).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: web-to-db, namespace: lab }
+spec:
+  podSelector: { matchLabels: { app: web } }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: { matchLabels: { app: db } }
+      ports:
+        - { protocol: TCP, port: 3306 }
+---
+# Todo lo que no permita otra política queda bloqueado, en los dos sentidos.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: default-deny, namespace: lab }
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]                                                        # BLANCO 5: el segundo sentido

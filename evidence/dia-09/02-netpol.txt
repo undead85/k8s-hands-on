@@ -1,0 +1,25 @@
+# 2026-11-04T21:35:55+00:00
+$ kubectl -n lab get networkpolicy
+No resources found in lab namespace.
+exit=0
+
+# 2026-11-04T21:35:56+00:00
+$ kubectl -n lab get networkpolicy default-deny -o jsonpath=tipos=\{.spec.policyTypes\[\*\]\}\ selector=\{.spec.podSelector\}\ ingress=\{.spec.ingress\}\ egress=\{.spec.egress\}\{\"\\n\"\}
+Error from server (NotFound): networkpolicies.networking.k8s.io "default-deny" not found
+exit=1
+
+# 2026-11-04T21:40:09+00:00
+$ kubectl -n lab get networkpolicy
+NAME           POD-SELECTOR   AGE
+allow-dns      <none>         2m22s
+api-ingress    app=api        2m22s
+db-ingress     app=db         2m22s
+default-deny   <none>         2m21s
+web-ingress    app=web        2m22s
+web-to-db      app=web        2m22s
+exit=0
+
+# 2026-11-04T21:40:11+00:00
+$ kubectl -n lab get networkpolicy default-deny -o jsonpath=tipos=\{.spec.policyTypes\[\*\]\}\ selector=\{.spec.podSelector\}\ ingress=\{.spec.ingress\}\ egress=\{.spec.egress\}\{\"\\n\"\}
+tipos=Ingress Egress selector={} ingress= egress=
+exit=0
