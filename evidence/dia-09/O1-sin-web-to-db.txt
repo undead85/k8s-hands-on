@@ -1,0 +1,5 @@
+$ kubectl -n lab delete networkpolicy web-to-db
+networkpolicy.networking.k8s.io "web-to-db" deleted from lab namespace
+
+$ kubectl -n lab exec deploy/web -- nc -z -w 3 db.lab.svc.cluster.local 3306
+command terminated with exit code 1
