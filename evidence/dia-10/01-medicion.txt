@@ -1,0 +1,39 @@
+# 2026-11-05T14:16:26+00:00
+$ kubectl top nodes
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+lab-control-plane   503m         6%       1049Mi          27%         
+lab-worker          119m         1%       701Mi           18%         
+lab-worker2         107m         1%       272Mi           7%          
+exit=0
+
+# 2026-11-05T14:16:27+00:00
+$ kubectl -n lab top pods -l app=web
+NAME                   CPU(cores)   MEMORY(bytes)   
+web-5fff4947bc-7rpbs   1m           9Mi             
+web-5fff4947bc-9ztwj   1m           11Mi            
+web-5fff4947bc-wdr7x   1m           8Mi             
+exit=0
+
+# 2026-11-05T14:16:30+00:00
+$ kubectl -n default run np-load --image=nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e --restart=Never --command -- sh -c i=0\;\ while\ \[\ \$i\ -lt\ 6\ \]\;\ do\ \(\ while\ true\;\ do\ wget\ -q\ -O\ /dev/null\ -T\ 2\ --header\ \'Host:\ lab.local\'\ http://10.96.15.75/\ \;\ done\ \)\ \&\ i=\$\(\(i+1\)\)\;\ done\;\ wait
+pod/np-load created
+exit=0
+
+# 2026-11-05T14:16:31+00:00
+$ kubectl -n default wait --for=condition=Ready pod/np-load --timeout=90s
+pod/np-load condition met
+exit=0
+
+# 2026-11-05T14:17:18+00:00  t=45s con carga: promedio por Pod de web = 9 3  (m, Pods)
+# 2026-11-05T14:17:34+00:00  t=60s con carga: promedio por Pod de web = 11 3  (m, Pods)
+# 2026-11-05T14:17:50+00:00  t=75s con carga: promedio por Pod de web = 11 3  (m, Pods)
+# 2026-11-05T14:17:50+00:00
+$ kubectl -n lab top pods -l app=web
+NAME                   CPU(cores)   MEMORY(bytes)   
+web-5fff4947bc-7rpbs   11m          9Mi             
+web-5fff4947bc-9ztwj   12m          12Mi            
+web-5fff4947bc-wdr7x   11m          8Mi             
+exit=0
+
+RESULTADO medicion reposo_m=1 carga_m=11 reposo_pct=0 carga_pct=2 pods=3
+requests.cpu de web = 500m  =>  el 50% del plan serían 250m por Pod

@@ -1,0 +1,35 @@
+# 2026-11-05T14:31:12+00:00 nodo elegido: lab-worker2 (db corre en otro nodo)
+NAME                   READY   STATUS    RESTARTS      AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+web-5fff4947bc-525k9   1/1     Running   0             20s     10.244.1.9    lab-worker2   <none>           <none>
+web-5fff4947bc-7rpbs   1/1     Running   1 (17h ago)   2d23h   10.244.2.2    lab-worker    <none>           <none>
+web-5fff4947bc-9dz4x   1/1     Running   0             20s     10.244.1.10   lab-worker2   <none>           <none>
+web-5fff4947bc-9ztwj   1/1     Running   1 (17h ago)   2d23h   10.244.1.2    lab-worker2   <none>           <none>
+web-5fff4947bc-lrzrd   1/1     Running   0             20s     10.244.2.7    lab-worker    <none>           <none>
+
+# 2026-11-05T14:31:13+00:00
+$ kubectl drain lab-worker2 --ignore-daemonsets --delete-emptydir-data --timeout=180s
+node/lab-worker2 cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-q8nqf, kube-system/kube-proxy-62l9n
+evicting pod lab/web-5fff4947bc-9ztwj
+evicting pod lab/web-5fff4947bc-9dz4x
+evicting pod kube-system/metrics-server-76558b4bb9-84gdl
+evicting pod lab/api-6ff4c966b4-xnh6q
+evicting pod lab/web-5fff4947bc-525k9
+pod/api-6ff4c966b4-xnh6q evicted
+pod/web-5fff4947bc-9dz4x evicted
+pod/metrics-server-76558b4bb9-84gdl evicted
+pod/web-5fff4947bc-9ztwj evicted
+pod/web-5fff4947bc-525k9 evicted
+node/lab-worker2 drained
+exit=0
+
+# 2026-11-05T14:31:20+00:00
+$ kubectl uncordon lab-worker2
+node/lab-worker2 uncordoned
+exit=0
+
+disponibles de web durante el drain (cada 1 s; 3 muestras): mínimo = 2
+  1 muestra(s) con 2 disponibles
+  1 muestra(s) con 4 disponibles
+  1 muestra(s) con 5 disponibles
+RESULTADO drain nodo=lab-worker2 rc=0 min_disponibles=2 evictiones_web=3 bloqueos_pdb=0 pdb_min=2

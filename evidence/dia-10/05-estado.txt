@@ -1,0 +1,28 @@
+#  qué predijiste                                                    tu apuesta real 
+1  web llega a 3 o más réplicas Ready en 180 s o menos con la carga yes        yes  
+2  web llega a 5 réplicas (el máximo) con la carga                  yes        yes  
+3  durante el drain, los Pods disponibles de web nunca bajan de 2     yes        yes  
+4  el drain termina con éxito (exit 0) antes de 180 s                yes        yes  
+aciertos de tu predicción: 4/4
+# 2026-11-05T14:40:29+00:00
+$ kubectl get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+lab-control-plane   Ready    control-plane   26d   v1.37.0
+lab-worker          Ready    <none>          26d   v1.37.0
+lab-worker2         Ready    <none>          26d   v1.37.0
+exit=0
+
+# 2026-11-05T14:40:32+00:00
+$ kubectl -n lab get deploy\,pods
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api   2/2     2            2           7d15h
+deployment.apps/db    1/1     1            1           10d
+deployment.apps/web   2/2     2            2           10d
+
+NAME                       READY   STATUS    RESTARTS      AGE
+pod/api-6ff4c966b4-g8h8r   1/1     Running   2 (18h ago)   7d15h
+pod/api-6ff4c966b4-vgx95   1/1     Running   0             9m18s
+pod/db-5c668667fc-v4kv7    1/1     Running   1 (18h ago)   2d22h
+pod/web-5fff4947bc-7rpbs   1/1     Running   1 (18h ago)   2d23h
+pod/web-5fff4947bc-lrzrd   1/1     Running   0             9m39s
+exit=0

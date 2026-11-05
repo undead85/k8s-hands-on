@@ -1,0 +1,28 @@
+# manifests/hpa-pdb.yaml: autoescalado y presupuesto de interrupciones de `web` (Día 10). Completa los BLANCOS 2 a 5.
+# El HPA mide el uso de CPU respecto de lo que cada Pod PIDE (requests.cpu de web = 500m), no respecto de la CPU del nodo.
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: web, namespace: lab }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: web }
+  minReplicas: 2                      # BLANCO 2: el mínimo de réplicas (el plan dice 2)
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 1       # BLANCO 3: % de los 500m por Pod; elígelo con la medición de `medir`
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60    # por defecto son 300 s; 60 s acorta la espera del laboratorio
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: { name: web, namespace: lab }
+spec:
+  minAvailable: 2                     # BLANCO 4: cuántos Pods de web deben seguir disponibles en una interrupción voluntaria
+  selector:
+    matchLabels: { app: web }           # BLANCO 5: la etiqueta de los Pods de web

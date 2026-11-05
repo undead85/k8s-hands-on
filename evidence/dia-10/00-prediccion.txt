@@ -1,0 +1,6 @@
+# Día 10: tu predicción de lo que verá `prueba`, con el HPA y el PDB ya aplicados.
+# Escribe yes o no al final de cada línea y GUARDA el archivo ANTES de aplicar el HPA.
+1. web llega a 3 o más réplicas Ready en 180 s o menos con la carga: yes
+2. web llega a 5 réplicas (el máximo) con la carga: yes
+3. durante el drain, los Pods disponibles de web nunca bajan de 2: yes
+4. el drain termina con éxito (exit 0) antes de 180 s: yes

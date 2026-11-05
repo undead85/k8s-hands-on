@@ -1,0 +1,22 @@
+# 2026-11-05T14:29:21+00:00 punto de partida t=0s spec=3 ready=3
+# 2026-11-05T14:29:32+00:00 punto de partida t=10s spec=3 ready=3
+# 2026-11-05T14:29:43+00:00 punto de partida t=20s spec=3 ready=3
+# 2026-11-05T14:29:54+00:00 punto de partida t=30s spec=3 ready=3
+# 2026-11-05T14:30:05+00:00 punto de partida t=40s spec=3 ready=3
+# 2026-11-05T14:30:16+00:00 punto de partida t=50s spec=2 ready=2
+# 2026-11-05T14:30:18+00:00
+$ kubectl -n default run np-load --image=nginxinc/nginx-unprivileged:alpine3.24-perl@sha256:2a8a3b6c66e252c13257d3a1126d37c7ffb722252c680450e4aa72d29b867c1e --restart=Never --command -- sh -c i=0\;\ while\ \[\ \$i\ -lt\ 6\ \]\;\ do\ \(\ while\ true\;\ do\ wget\ -q\ -O\ /dev/null\ -T\ 2\ --header\ \'Host:\ lab.local\'\ http://10.96.15.75/\ \;\ done\ \)\ \&\ i=\$\(\(i+1\)\)\;\ done\;\ wait
+pod/np-load created
+exit=0
+
+# 2026-11-05T14:30:18+00:00
+$ kubectl -n default wait --for=condition=Ready pod/np-load --timeout=90s
+pod/np-load condition met
+exit=0
+
+# 2026-11-05T14:30:22+00:00 t=  0s ready=2 spec=2 hpa=3/2 cpu=0%
+# 2026-11-05T14:30:34+00:00 t= 12s ready=2 spec=2 hpa=2/2 cpu=0%
+# 2026-11-05T14:30:46+00:00 t= 24s ready=2 spec=2 hpa=2/2 cpu=1%
+# 2026-11-05T14:30:58+00:00 t= 36s ready=3 spec=5 hpa=2/5 cpu=3%
+# 2026-11-05T14:31:11+00:00 t= 49s ready=5 spec=5 hpa=5/5 cpu=3%
+RESULTADO subida segundos=36 max_ready=5 inicio=2

@@ -1,0 +1,21 @@
+# 2026-11-05T14:40:17+00:00
+$ kubectl -n kube-system get deploy metrics-server
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+metrics-server   1/1     1            1           24m
+exit=0
+
+# 2026-11-05T14:40:18+00:00
+$ kubectl get apiservice v1beta1.metrics.k8s.io
+NAME                     SERVICE                      AVAILABLE   AGE
+v1beta1.metrics.k8s.io   kube-system/metrics-server   True        24m
+exit=0
+
+# 2026-11-05T14:40:18+00:00
+$ kubectl top nodes
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+lab-control-plane   419m         5%       1124Mi          29%         
+lab-worker          153m         1%       763Mi           19%         
+lab-worker2         66m          0%       224Mi           5%          
+exit=0
+
+metrics-server=1/1 apiservice=True nodos con datos=3 flag insecure-tls=1
