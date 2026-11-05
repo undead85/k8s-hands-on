@@ -4,7 +4,7 @@ Laboratorio práctico de Kubernetes de 2 semanas (10 sesiones acumulativas) sobr
 
 Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 
-- **`web`**: 3 réplicas de `nginxinc/nginx-unprivileged` (puerto 8080, usuario sin privilegios), con probes `startup`/`readiness`/`liveness` en rutas separadas y `requests` = `limits` (QoS Guaranteed). Services `web` (ClusterIP :80) y `web-headless`.
+- **`web`**: 3 réplicas en el manifiesto (el HPA del Día 10 las gobierna entre 2 y 5) de `nginxinc/nginx-unprivileged` (puerto 8080, usuario sin privilegios), con probes `startup`/`readiness`/`liveness` en rutas separadas y `requests` = `limits` (QoS Guaranteed). Services `web` (ClusterIP :80) y `web-headless`.
 - **`db`**: MySQL de 1 réplica (Deployment) con un PVC (`db-pvc`, StorageClass `standard`) montado en `/var/lib/mysql`. Service `db` (:3306).
 - **Configuración**: ConfigMap `web-config` (`default.conf` de nginx) y Secret `mysql-secret` (clave `password`), este último **fuera del repo**.
 - **`api`**: 2 réplicas de `traefik/whoami:1.12.0` (por digest, puerto 8080, sin root, `requests` = `limits`), un backend de prueba que devuelve la petición que recibe. Service `api` (ClusterIP :80).
@@ -12,9 +12,10 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 - **RBAC** (Día 7): ServiceAccount `deployer` con un `Role` mínimo (`get` y `patch` sobre `deployments`, solo en `lab`), y los Pods de `web` sin token de la API (`automountServiceAccountToken: false`).
 - **Hardening y Pod Security** (Día 8): `web` con `securityContext` completo (no-root, sin escalada de privilegios, `drop: ["ALL"]`, seccomp `RuntimeDefault`, raíz de solo lectura con un `emptyDir` en `/tmp`); `lab` impone Pod Security `baseline` y avisa y audita con `restricted`.
 - **NetworkPolicy** (Día 9): `default-deny` (Ingress y Egress) en `lab` y cinco políticas de permiso mínimo: DNS para todos los Pods, Traefik → `web` y `api` por el puerto 8080, y `web` → `db` por el 3306 (salida de `web` y entrada de `db`).
-- Las imágenes van fijadas por digest (`@sha256:…`).
+- **Autoescalado y PDB** (Día 10): metrics-server v0.9.1 en `kube-system` (con `--kubelet-insecure-tls`, solo para laboratorio), un HPA `web` (mínimo 2, máximo 5, CPU 1% de los 500m solicitados, ventana de bajada de 60 s) y un PDB `web` con `minAvailable: 2`.
+- Las imágenes van fijadas por digest (`@sha256:…`), salvo la de metrics-server (Día 10), que solo lleva el tag `v0.9.1`.
 
-> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) y el 2026-11-02 (Día 8) y el 2026-11-04 (Día 9) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
+> Estado de este README: escrito el 2026-10-25 y actualizado el 2026-10-29 (Días 6 y 7) y el 2026-11-02 (Día 8) y el 2026-11-04 (Día 9) y el 2026-11-05 (Día 10, cierre del plan) con lo que ya está en el repo y en `evidence/`. Si algo no aparece en la evidencia, aquí no se afirma.
 
 ## Requisitos y versiones usadas
 
@@ -29,6 +30,7 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 | conventional-precommit-linter | v1.11.0 | `.pre-commit-config.yaml` |
 | Traefik | v3.7.16 (chart `traefik-42.1.3`) | `infra/traefik/traefik.yaml`, `evidence/dia-06/01-controlador.txt` |
 | CRDs de Gateway API | v1.6.3, canal estándar | `infra/gateway-api/standard-install-v1.6.3.yaml` |
+| metrics-server | v0.9.1 (`registry.k8s.io/metrics-server/metrics-server:v0.9.1`, por tag) | `infra/metrics-server/components-v0.9.1.yaml`, `evidence/dia-10/02-metrics.txt` |
 | Helm | no consta | se usó para renderizar `traefik.yaml`; su versión no quedó en la evidencia |
 
 - Entorno de trabajo: Windows + Git Bash; los nodos de kind corren sobre un kernel WSL2 (`evidence/dia-01/00-entorno.txt`).
@@ -40,8 +42,9 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 ```text
 .
 ├── kind/kind-config.yaml        # clúster: 1 control-plane + 2 workers
-├── infra/                       # componentes de terceros versionados (Día 6)
+├── infra/                       # componentes de terceros versionados (Días 6 y 10)
 │   ├── gateway-api/standard-install-v1.6.3.yaml  # CRDs de Gateway API (canal estándar)
+│   ├── metrics-server/components-v0.9.1.yaml     # metrics-server v0.9.1 + --kubelet-insecure-tls (Día 10)
 │   └── traefik/
 │       ├── namespace.yaml       # namespace traefik
 │       ├── values.yaml          # valores usados con helm template
@@ -58,7 +61,8 @@ Qué queda desplegado (namespace `lab`, y `traefik` para la exposición HTTP):
 │   ├── api.yaml                 # Deployment y Service api (whoami x2)
 │   ├── routes.yaml              # HTTPRoute lab-routes (lab.local)
 │   ├── rbac.yaml                # ServiceAccount deployer, Role y RoleBinding (Día 7)
-│   └── netpol.yaml              # 6 NetworkPolicy de lab: default-deny y permisos mínimos (Día 9)
+│   ├── netpol.yaml              # 6 NetworkPolicy de lab: default-deny y permisos mínimos (Día 9)
+│   └── hpa-pdb.yaml             # HPA y PDB de web (Día 10)
 ├── scripts/                     # dia-NN.sh: Parte 0 y evidencia (desde el Día 7)
 ├── docs/dia-NN-*.md             # nota de cada día: objetivo, criterios, decisiones, preguntas
 ├── evidence/dia-NN/*.txt        # salida real de los comandos, con hora y comando
@@ -82,7 +86,7 @@ kubectl get nodes
 
 ## Recrear el laboratorio
 
-> ⚠️ **Hoy no es un comando único.** Son 3 pasos para el laboratorio, más 4 para la exposición HTTP (ver [Exposición HTTP](#exposición-http-día-6)), y el orden importa. El criterio 7 del Día 5 pide un solo comando y está en estado parcial; el criterio 7 del Día 6 (recrear con la exposición HTTP) no se realizó (ver [Limitaciones conocidas](#limitaciones-conocidas)).
+> ⚠️ **Hoy no es un comando único.** Son 3 pasos para el laboratorio, más 4 para la exposición HTTP (ver [Exposición HTTP](#exposición-http-día-6)) y 2 para el autoescalado (ver [Autoescalado y PDB](#autoescalado-y-pdb-día-10)), y el orden importa. El criterio 7 del Día 5 pide un solo comando y está en estado parcial; el criterio 7 del Día 6 (recrear con la exposición HTTP) no se realizó (ver [Limitaciones conocidas](#limitaciones-conocidas)).
 
 **1. Crear el namespace primero.** `kubectl apply -f manifests/` procesa los archivos en orden alfabético y `db-*.yaml` va antes que `namespace.yaml`; sin el namespace, falla con `namespaces "lab" not found` (`evidence/dia-05/07-recreacion.txt`, 17:43 UTC).
 
@@ -232,6 +236,46 @@ bash scripts/dia-09.sh check            # criterios 1 a 3 y la matriz
 
 Las pruebas 4 y 6 salen de un Pod `np-probe` que el script crea en `default` (misma imagen que `web`) y borra al terminar. Las hace cumplir el CNI de kind: el único DaemonSet de red en `kube-system` es `kindnet`. Resultados observados el 2026-11-04, 21:40 UTC (`evidence/dia-09/03-matriz.txt`): pruebas 1 a 3 en ≤1 s; pruebas 4 a 6 agotan el tiempo a los 4 s. `web` 3/3, `api` 2/2 y `db` 1/1 siguieron Ready, sin reinicios nuevos, 2'45" después de aplicar. En el opcional O1 (sin `web-to-db`), `web` → `db`:3306 falló con exit 1.
 
+## Autoescalado y PDB (Día 10)
+
+Tres piezas, en este orden:
+
+1. **metrics-server v0.9.1** (`infra/metrics-server/components-v0.9.1.yaml`, namespace `kube-system`): el manifiesto oficial con una sola línea añadida, `--kubelet-insecure-tls`, porque los kubelet de kind usan certificados autofirmados. Solo sirve para laboratorio. La cabecera del archivo trae el sha256 del original.
+2. **HPA `web`** (`manifests/hpa-pdb.yaml`): `autoscaling/v2`, mínimo 2, máximo 5, CPU `Utilization` 1% y `scaleDown.stabilizationWindowSeconds: 60` (por defecto son 300 s).
+3. **PDB `web`** (mismo archivo): `policy/v1`, `minAvailable: 2`, selector `app: web`.
+
+```bash
+kubectl apply -f infra/metrics-server/components-v0.9.1.yaml
+kubectl -n kube-system rollout status deploy/metrics-server
+kubectl top nodes                       # debe listar los 3 nodos
+bash scripts/dia-10.sh medir            # CPU por Pod de web en reposo y con carga (≈2 min)
+kubectl apply -f manifests/hpa-pdb.yaml
+bash scripts/dia-10.sh prueba           # sube con carga y drena un worker bajo carga (≈2 a 9 min)
+bash scripts/dia-10.sh check            # criterios 1 a 3
+```
+
+El HPA compara el uso medio con `requests.cpu` (500m por Pod de `web`), así que 1% son 5m. `medir` midió 1m por Pod en reposo y 11m con carga (`evidence/dia-10/01-medicion.txt`, 3 Pods y 6 bucles de `wget`): el 50% del plan (250m por Pod) nunca se habría alcanzado. Se eligió 1% porque sube con las dos cargas posibles que dio la medición (27m y 33m en total); el 2% no se probó. Si recreas el laboratorio en otro entorno, vuelve a medir.
+
+La carga la genera un Pod `np-load` en `default` (misma imagen que `web`) con bucles de `wget` contra el ClusterIP del Service de Traefik y `Host: lab.local`, el único camino que `web-ingress` admite. `medir` y `prueba` lo crean y lo borran; `CARGA_N` cambia el número de bucles (por defecto 6).
+
+Resultados observados el 2026-11-05 (`evidence/dia-10/`, horas en UTC):
+
+| Qué | Resultado |
+|---|---|
+| metrics-server | 1/1, APIService `Available=True` y los 3 nodos en `kubectl top nodes` (`02-metrics.txt`, 14:40) |
+| CPU por Pod de `web` | reposo 1m; con carga 11m (11, 12 y 11m) (`01-medicion.txt`, 14:16 a 14:17) |
+| Subida | de 2 a 3 Pods Ready a los 36 s y a 5 a los 49 s, con CPU 3% con 2 Pods (`03-hpa-carga.txt`, 14:30) |
+| Bajada | al crear el HPA, `web` estaba en 3 (por `replicas: 3`) y bajó a 2 a los 50 s; a las 14:40 seguía en 2/2 (`03-hpa-carga.txt`, `05-estado.txt`) |
+| Drain bajo carga | `lab-worker2` (3 de los 5 Pods de `web`): exit 0 en ≈7 s, 3 evicciones de `web`, 0 bloqueos y mínimo de 2 disponibles en 3 muestras (`04-drain.txt`, 14:31) |
+
+Qué tener en cuenta:
+
+- `kubectl apply -f manifests/web-deployment.yaml` (o `-f manifests/`) vuelve a fijar `replicas: 3` y el HPA lo corrige después. El campo no se quitó del manifiesto.
+- Un PDB solo cubre las interrupciones voluntarias de los Pods que selecciona. El drain de la prueba también sacó a `metrics-server` y a un Pod de `api`, que no tienen PDB.
+- Con `web` en 2 réplicas, un `drain` del worker que tenga uno de sus Pods quedaría esperando (acordona el nodo y reintenta cada 5 s); eso se razonó y no se ejecutó. Si cancelas un drain, haz `kubectl uncordon <nodo>`.
+- `scripts/dia-10.sh prueba` elige un worker sin `db` y le hace `uncordon` al terminar. A mano, no drenes el nodo de `db` ni el control-plane.
+- Sin metrics-server, el HPA no tendría métricas (sin probar).
+
 ## Seguridad y convenciones
 
 - Ningún valor de contraseña va en archivos del repo, en `evidence/` ni en las notas. Lo vigilan `.gitignore` y el hook de `gitleaks`; antes de cada commit se revisa con `grep -rlF` sobre `README.md`, `evidence`, `docs`, `manifests`, `infra` y `scripts` (desde el Día 7 lo hace `bash scripts/dia-NN.sh pre`).
@@ -252,7 +296,7 @@ Las pruebas 4 y 6 salen de un Pod `np-probe` que el script crea en `default` (mi
 | 7 | RBAC de mínimo privilegio | ✅ | `dia-07` | [docs/dia-07-rbac.md](docs/dia-07-rbac.md) |
 | 8 | Hardening de Pods y Pod Security Admission | ✅ | `dia-08` | [docs/dia-08-hardening.md](docs/dia-08-hardening.md) |
 | 9 | NetworkPolicy (default-deny con permisos mínimos) | ✅ | `dia-09` | [docs/dia-09-networkpolicy.md](docs/dia-09-networkpolicy.md) |
-| 10 | HPA y PDB | por hacer | — | — |
+| 10 | HPA y PDB | ✅ | `dia-10` | [docs/dia-10-hpa-pdb.md](docs/dia-10-hpa-pdb.md) |
 
 ## Limitaciones conocidas
 
@@ -298,7 +342,15 @@ Es lo que sigue sin corregir o sin demostrar hoy. Las filas "no corregido" salen
 - **NetworkPolicy solo en `lab`** (Día 9): `traefik`, `default` y `kube-system` no tienen políticas. Traefik puede conectarse a cualquier destino y recibir de cualquier origen.
 - **Matriz de NetworkPolicy parcial**: la prueba 5 (`web` → `api`) la bloquean a la vez la salida de `web` y la entrada de `api`, así que `api-ingress` solo está probada en positivo (prueba 2). No hay una prueba negativa desde otro Pod de `lab` (por ejemplo, `api` → `db`).
 - **`web` → `db`:3306 permitido sin necesidad real**: nginx no usa MySQL. `web-to-db` y `db-ingress` existen porque el ejercicio pide ese camino; en una aplicación real se darían al servicio que sí lo usa.
-- **O1 del Día 9 sin restauración en la evidencia**: `evidence/dia-09/O1-sin-web-to-db.txt` termina con la prueba fallando, sin hora ni duración, y no muestra que `web-to-db` se haya vuelto a aplicar. Hasta que se compruebe (`kubectl -n lab get networkpolicy` debe listar 6), el estado vivo de esa política no consta.
+- **Evidencia del O1 del Día 9 incompleta**: `evidence/dia-09/O1-sin-web-to-db.txt` termina con la prueba fallando, sin hora ni duración, y no muestra la restauración. El estado vivo sí consta: `evidence/dia-10/00-seguro.txt` (2026-11-05, 13:34 UTC) lista las 6 NetworkPolicy, con `web-to-db` de 15 h.
+- **HPA y `replicas: 3`** (Día 10): `web-deployment.yaml` sigue con `replicas: 3` y el HPA también manda sobre las réplicas. Cada `apply` de ese archivo las vuelve a poner en 3 hasta que el HPA las corrige (al crear el HPA bajaron de 3 a 2 a los 50 s). No se quitó el campo (O2 del Día 10, no realizado).
+- **Objetivo de CPU de 1% (5m por Pod)**: sale de una medición con 6 bucles de `wget` (1m en reposo, 11m con carga) y de requests de 500m. Es muy sensible: un nginx estático casi no usa CPU. Sirve para que el HPA reaccione en el laboratorio (36 s), no como valor de producción. El 2% no se probó.
+- **El PDB nunca bloqueó una evicción**: en `evidence/dia-10/04-drain.txt` el PDB permitía 3 evicciones (5 − 2) y el nodo tenía 3 Pods de `web` (`bloqueos_pdb=0`). El caso bloqueado, con `web` en 2 réplicas, se razonó y no se ejecutó. El muestreo de disponibilidad fue de 3 puntos en ≈7 s.
+- **El drain saca lo que no tiene PDB**: además de `web`, salieron `metrics-server` (1 réplica) y un Pod de `api`. `api`, `db` y `metrics-server` no tienen PDB.
+- **Réplicas de `web` sin repartir**: los 2 Pods que quedaron a las 14:40 (`7rpbs` y `lrzrd`) figuran ambos en `lab-worker` en el listado de las 14:31 (`04-drain.txt`). No hay `topologySpreadConstraints` ni anti-afinidad (O3 del Día 10, no realizada), y Kubernetes no rebalancea tras el `uncordon`: un solo nodo caído dejaría `web` sin servicio.
+- **metrics-server en modo laboratorio**: corre con `--kubelet-insecure-tls`, el manifiesto oficial trae el APIService con `insecureSkipTLSVerify: true`, y su imagen se fijó por tag (`v0.9.1`), no por digest.
+- **Carga sintética**: solo sale de un Pod en `default` por el ClusterIP del Service de Traefik. Mide el camino Traefik → `web` con las NetworkPolicy puestas, no tráfico real.
+- **Dónde corre `db` hoy (por revisar)**: este README dice que el PV está ligado a `lab-worker2` (Día 5), pero `prueba` drenó `lab-worker2` porque `db` corría en otro nodo (`04-drain.txt`) y el drain no sacó a `db`. Esa afirmación del Día 5 puede estar desactualizada; se comprueba con `kubectl get pv -o wide` y `kubectl -n lab get pods -o wide`.
 - **Clientes de prueba en `lab` (sin probar)**: con `default-deny`, un Pod creado con `kubectl run` en `lab` (como los clientes MySQL del Día 5) no tiene política que le permita llegar a `db`. Habría que añadirla; es el opcional O2 del Día 9, no realizado.
 - **`audit: restricted` sin comprobar**: no se revisó el registro de auditoría del API server, así que hoy `audit` solo deja la intención escrita.
 - **Manifiestos que no coinciden con el clúster (sin verificar)**: `kubectl apply --dry-run=server -f manifests/` marca `db` y `lab-routes` como `configured` mientras el resto sale `unchanged` (`evidence/dia-08/00-seguro.txt`). No se investigó con `kubectl diff`. Sigue igual el 2026-11-04 (`evidence/dia-09/00-seguro.txt`, 21:59 UTC): `db` y `lab-routes` salen `configured` y las 6 NetworkPolicy `unchanged`.
